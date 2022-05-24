@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/scripts/cryptobigint" type="module"></script>
+    <link rel="stylesheet" href="/dashboard/style">
+    <link rel="icon" href="/img/coin">
+    <title>Chunk Coin</title>
+</head>
+<body>
+
+    <div class="mining">
+        <div class="miningOverlay">
+        </div>
+        <button class="miningWindowClose">X</button>
+        <div class="miningWindow">
+
+        </div>
+    </div>
+    
+
+    <div class="banner">
+        <form action="/logout?_method=DELETE" method="POST">
+            <button type="submit">Log out</button>
+        </form>
+        
+        <img class="logo" src="/img/coin">
+
+        <div class="mineInfo">
+            <h2 class="title">Miners get 10.00 coins <br> per block</h2>
+        </div>
+
+        <div class="pagetitle">
+            <h1 class="title">CHUNK COIN</h1>
+            <h2 class="title">A blockchain simulator</h2>
+        </div>
+        
+        <div>
+            <h2 class="money">Hi <%= name %>! You currently have:</h2>
+            <h1 class="money">200.00</h1>
+        </div>
+
+        <a href="https://github.com/ouragan84" class="gitlogo" target="_blank">
+            <img src="/img/github_logo" style="height: 100%">
+        </a>
+    </div>
+
+    <div class="chain">
+        <div class="block">
+            <div class="blockProperty">
+                <label class="inlineLabel" >Previous:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+
+            <hr class="new">
+
+            <div class="blockProperty">
+                <input class="inlineField" type="text" value="xxx COINBASE xxx" readonly>
+            </div>
+
+            <div class="blockProperty">
+                <label class="inlineLabel" >To:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+
+            <div class="blockProperty">
+                <label class="inlineLabel" >Amount:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+
+            <div class="blockProperty">
+                <label class="inlineLabel" >Number:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+
+            <hr class="new">
+
+            <div class="blockProperty">
+                <label class="inlineLabel" >Signature:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+
+            <hr class="new">
+
+            <div class="blockProperty">
+                <label class="inlineLabel" >Miner:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+
+            <div class="blockProperty">
+                <label class="inlineLabel" >Nonce:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+
+            <div class="blockProperty">
+                <label class="inlineLabel" >Hash:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+        </div>
+
+        <img src="/img/arrow" class="arrow"/>
+
+        <div class="block">
+            <div class="blockProperty">
+                <label class="inlineLabel" >Previous:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+
+            <hr class="new">
+
+            <div class="blockProperty">
+                <label class="inlineLabel" >From:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+
+            <div class="blockProperty">
+                <label class="inlineLabel" >To:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+
+            <div class="blockProperty">
+                <label class="inlineLabel" >Amount:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+
+            <div class="blockProperty">
+                <label class="inlineLabel" >Number:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+
+            <hr class="new">
+
+            <div class="blockProperty">
+                <label class="inlineLabel" >Signature:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+
+            <hr class="new">
+
+            <div class="blockProperty">
+                <label class="inlineLabel" >Miner:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+
+            <div class="blockProperty">
+                <label class="inlineLabel" >Nonce:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+
+            <div class="blockProperty">
+                <label class="inlineLabel" >Hash:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+        </div>
+
+        <img src="/img/arrow" class="arrow"/>
+
+        <div class="block">
+            <div class="blockProperty">
+                <label class="inlineLabel" >Previous:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+
+            <hr class="new">
+
+            <div class="blockProperty">
+                <label class="inlineLabel" >From:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+
+            <div class="blockProperty">
+                <label class="inlineLabel" >To:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+
+            <div class="blockProperty">
+                <label class="inlineLabel" >Amount:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+
+            <div class="blockProperty">
+                <label class="inlineLabel" >Number:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+
+            <hr class="new">
+
+            <div class="blockProperty">
+                <label class="inlineLabel" >Signature:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+
+            <hr class="new">
+
+            <div class="blockProperty">
+                <label class="inlineLabel" >Miner:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+
+            <div class="blockProperty">
+                <label class="inlineLabel" >Nonce:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+
+            <div class="blockProperty">
+                <label class="inlineLabel" >Hash:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+        </div>
+
+        <img src="/img/arrow" class="arrow"/>
+
+        <div class="block">
+            <div class="blockProperty">
+                <label class="inlineLabel" >Previous:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+
+            <hr class="new">
+
+            <div class="blockProperty">
+                <label class="inlineLabel" >From:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+
+            <div class="blockProperty">
+                <label class="inlineLabel" >To:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+
+            <div class="blockProperty">
+                <label class="inlineLabel" >Amount:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+
+            <div class="blockProperty">
+                <label class="inlineLabel" >Number:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+
+            <hr class="new">
+
+            <div class="blockProperty">
+                <label class="inlineLabel" >Signature:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+
+            <hr class="new">
+
+            <div class="blockProperty">
+                <label class="inlineLabel" >Miner:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+
+            <div class="blockProperty">
+                <label class="inlineLabel" >Nonce:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+
+            <div class="blockProperty">
+                <label class="inlineLabel" >Hash:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+        </div>
+
+        <img src="/img/arrow" class="arrow"/>
+
+        <div class="block">
+            <div class="blockProperty">
+                <label class="inlineLabel" >Previous:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+
+            <hr class="new">
+
+            <div class="blockProperty">
+                <label class="inlineLabel" >From:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+
+            <div class="blockProperty">
+                <label class="inlineLabel" >To:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+
+            <div class="blockProperty">
+                <label class="inlineLabel" >Amount:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+
+            <div class="blockProperty">
+                <label class="inlineLabel" >Number:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+
+            <hr class="new">
+
+            <div class="blockProperty">
+                <label class="inlineLabel" >Signature:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+
+            <hr class="new">
+
+            <div class="blockProperty">
+                <label class="inlineLabel" >Miner:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+
+            <div class="blockProperty">
+                <label class="inlineLabel" >Nonce:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+
+            <div class="blockProperty">
+                <label class="inlineLabel" >Hash:</label>
+                <input class="inlineField" type="text" value="xxx" readonly>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="transactions">
+        <div class="pendingTransactions">
+            <div class="pendingTitle">
+                <h2 class="transTitle">PENDING TRANSACTIONS</h2>
+                <h3 class="transTitle">Mine successfully to get 10.00 coins</h3>
+            </div>
+            <div class="pendingList">
+                <div class="pendingTrans">
+                    <div class="transactionInfos">
+                        <div class="transactionProperty">
+                            <label class="TransInlineLabel" >From:</label>
+                            <input class="TransInlineField" type="text" value="xxx" readonly>
+                        </div>
+            
+                        <div class="transactionProperty">
+                            <label class="TransInlineLabel" >To:</label>
+                            <input class="TransInlineField" type="text" value="xxx" readonly>
+                        </div>
+            
+                        <div class="transactionProperty">
+                            <label class="TransInlineLabel" >Amount:</label>
+                            <input class="TransInlineField" type="text" value="xxx" readonly>
+                        </div>
+            
+                        <div class="transactionProperty">
+                            <label class="TransInlineLabel" >Number:</label>
+                            <input class="TransInlineField" type="text" value="xxx" readonly>
+                        </div>
+        
+                        <hr class="new">
+        
+                        <div class="transactionProperty">
+                            <label class="TransInlineLabel" >Signature:</label>
+                            <input class="TransInlineField" type="text" value="xxx" readonly>
+                        </div>
+                    </div>
+                    <div class="transactionMine">
+                        <input type="button" value="Mine" class="mineButton">
+                    </div>
+                    
+                </div>
+                <div class="pendingTrans">
+                    <div class="transactionInfos">
+                        <div class="transactionProperty">
+                            <label class="TransInlineLabel" >From:</label>
+                            <input class="TransInlineField" type="text" value="xxx" readonly>
+                        </div>
+            
+                        <div class="transactionProperty">
+                            <label class="TransInlineLabel" >To:</label>
+                            <input class="TransInlineField" type="text" value="xxx" readonly>
+                        </div>
+            
+                        <div class="transactionProperty">
+                            <label class="TransInlineLabel" >Amount:</label>
+                            <input class="TransInlineField" type="text" value="xxx" readonly>
+                        </div>
+            
+                        <div class="transactionProperty">
+                            <label class="TransInlineLabel" >Number:</label>
+                            <input class="TransInlineField" type="text" value="xxx" readonly>
+                        </div>
+        
+                        <hr class="new">
+        
+                        <div class="transactionProperty">
+                            <label class="TransInlineLabel" >Signature:</label>
+                            <input class="TransInlineField" type="text" value="xxx" readonly>
+                        </div>
+                    </div>
+                    <div class="transactionMine">
+                        <input type="button" value="Mine" class="mineButton">
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+        <div class="makeTransaction">
+            <div class="makeTransactionTitle">
+                <h2 class="transTitle">Make Transaction</h2>
+            </div>
+            <div class="makeTransactionContent">
+                <form class="makeTransactionForm">
+                    <div class="formProperty">
+                        <label class="formInlineLabel">From:</label>
+                        <input class="formInlineField" type="text" value="xxx" readonly>
+                    </div>
+                    <div class="formProperty">
+                        <label class="formInlineLabel">To:</label>
+                        <select name="cars" class="formInlineField">
+                            <option value="name1">name1</option>
+                            <option value="name2">name2</option>
+                            <option value="name3">name3</option>
+                            <option value="name4">name4</option>
+                        </select>
+                    </div>
+                    <div class="formProperty">
+                        <label class="formInlineLabel">Amount:</label>
+                        <input class="formInlineField" type="number" value="10.00">
+                    </div>
+                    <div class="formProperty">
+                        <label class="formInlineLabel">Number:</label>
+                        <input class="formInlineField" type="text" value="10" readonly>
+                    </div>
+                    <hr class="new">
+                    <div class="formProperty">
+                        <label class="formInlineLabel">Signature:</label>
+                        <input class="formInlineField" type="text" value="xxx" readonly>
+                    </div>
+
+                    <div class="formProperty">
+                        <input class="submitButton" type="button" value="SUBMIT">
+                    </div>
+
+                    <img src="/img/signatureImage" class="signatureImage">
+
+                </form>
+            </div>
+        </div>
+        
+    </div>
+
+    <script src="/dashboard/script" type="module"></script>
+</body>
+</html>

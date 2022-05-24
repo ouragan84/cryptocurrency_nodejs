@@ -1,0 +1,340 @@
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+.banner {
+    height:10%;
+    background-color: greenyellow;
+    display: flex;
+    justify-content: space-around;
+    flex-direction: row;
+    align-items: center;
+    outline: 1px solid #000;
+}
+
+.logo {
+    height: 90%;
+}
+
+.pagetitle{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    justify-items: center;
+
+    height: 60%;
+    width: fit-content;
+}
+
+h1.title{
+    height: 100%;
+    margin: 0%;
+    text-align: center;
+}
+
+h2.title{
+    height: 100%;
+    margin: 0%;
+    text-align: center;
+}
+
+h1.money{
+    height: 100%;
+    margin: 0%;
+    text-align: center;
+}
+
+h2.money{
+    height: 100%;
+    margin: 0%;
+    text-align: center;
+}
+
+.gitlogo {
+    height: 50%;
+}
+
+.chain {
+    height:45%;
+    width: 100%;
+
+    overflow-x: scroll;
+    overflow-y: hidden;
+
+    justify-content: flex-start;
+    align-items: center;
+    /* min-width: min-content; */
+
+    
+    background-color: blueviolet;
+    display: flex;
+    flex-direction: row;
+
+    outline: 1px solid #000;
+}
+
+.block {
+    min-width: 220pt;
+    min-height: 225pt;
+    margin-left: 5pt;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    height: 85%;
+    width: 220pt;
+    border-radius: 8px;
+    background-color: white;
+    flex-wrap: nowrap;
+}
+
+hr.new {
+    width: 95%;
+    border-top: 1px solid black;
+}
+
+.blockProperty{
+    margin: 2pt;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: flex-start;
+}
+
+.inlineLabel{
+    margin-right: 5pt;
+}
+
+.inlineField{
+    width: 100%;
+}
+
+.arrow {
+    margin-left: 5pt;
+    height:50pt;
+    width:50pt;
+}
+
+.transactions {
+    height:45%;
+    width: 100%;
+
+    justify-content: flex-start;
+    align-items: center;
+    
+    display: flex;
+    flex-direction: row;
+}
+
+.pendingTransactions{
+    height:100%;
+    width: 70%;
+}
+
+.pendingTitle{
+    height:8%;
+    width: 100%;
+    background-color: red;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+h2.transTitle{
+    tab-size: 4;
+    margin: 20pt;
+}
+
+h3.transTitle{
+    tab-size: 4;
+    margin: 20pt;
+}
+
+.pendingList{
+    height:92%;
+    width: 100%;
+
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    justify-content: flex-start;
+    align-items: center;
+    
+    background-color: blue;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+}
+
+.pendingTrans{
+    min-width: 250pt;
+    min-height: 120pt;
+    margin-left: 5pt;
+    margin-top: 5pt;
+    display: flex;
+    flex-direction: row;
+    justify-content:start;
+    height:40%;
+    width: 31%;
+    border-radius: 8px;
+    background-color: white;
+    flex-wrap: nowrap;
+}
+
+.transactionInfos{
+    width:75%;
+    display: flex;
+    flex-direction: column;
+    justify-content:space-around;
+}
+
+.transactionProperty{
+    margin: 2pt;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: flex-start;
+}
+
+.TransInlineLabel{
+    margin-right: 5pt;
+}
+
+.TransInlineField{
+    width: 100%;
+}
+
+.transactionMine{
+    width: 25%;
+    /* outline: 2px solid #000; */
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.mineButton{
+    width: 75%;
+    height: 20%;
+    text-align: center;
+}
+
+.makeTransaction{
+    height:100%;
+    width: 30%;
+}
+
+.makeTransactionTitle{
+    height:8%;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background-color: mediumseagreen;
+}
+
+.makeTransactionContent{
+    height:92%;
+    width:100%;
+
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    
+    display: flex;
+    align-content: flex-start;
+
+    background-color: purple;
+}
+
+.makeTransactionForm{
+    width: 80%;
+    height: 80%;
+    min-width: 150pt;
+    min-height: 150pt;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;;
+    border-radius: 8px;
+    background-color: white;
+    flex-wrap: nowrap;
+}
+
+.formProperty{
+    margin: 2pt;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: flex-start;
+}
+
+.formInlineLabel{
+    margin-right: 5pt;
+}
+
+.formInlineField{
+    width: 100%;
+}
+
+.submitButton{
+    justify-self: center;
+    width: 50%;
+    margin-left: 25%;
+}
+
+.signatureImage{
+    width: 70%;
+    margin-left: 15%;
+}
+
+.mining{
+    visibility: hidden;
+}
+
+.miningOverlay{
+    background-color: #000;
+    opacity: 50%;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.miningWindowClose{
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin-top: 5pt;
+    margin-right: 5pt;
+    width: 30pt;
+    height: 30pt;
+    font-size: 25pt;
+}
+
+.miningWindow{
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+
+    min-width: 400pt;
+    min-height: 400pt;
+    max-width: 80%;
+    max-height: 80%;
+
+    height: 80%;
+    aspect-ratio: 1/1;
+    
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;;
+    border-radius: 8px;
+    background-color: white;
+    flex-wrap: nowrap;
+}
