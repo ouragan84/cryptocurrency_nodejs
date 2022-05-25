@@ -4,18 +4,98 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="/scripts/cryptobigint" type="module"></script>
+    <!-- <script src="/scripts/cryptobigint" type="module"></script> -->
+    <script>
+        const name = '<%=name%>';
+        const e = '<%=e%>';
+        const d = '<%=d%>';
+        const n = '<%=n%>';
+
+        const keys = {
+            private:{
+                d:BigInt("0x"+d),
+                n:BigInt("0x"+n)
+            },
+            public:{
+                e:BigInt("0x"+e),
+                n:BigInt("0x"+n)
+            }
+        }
+
+        window.name = name;
+        window.keys = keys;
+    </script>
+    <script src="https://cdn.socket.io/socket.io-3.0.1.min.js"></script>
     <link rel="stylesheet" href="/dashboard/style">
     <link rel="icon" href="/img/coin">
     <title>Chunk Coin</title>
 </head>
 <body>
 
-    <div class="mining">
+    <div class="mining" id="mining">
         <div class="miningOverlay">
         </div>
-        <button class="miningWindowClose">X</button>
+        <button class="miningWindowClose" onclick="closeMining()">X</button>
+
         <div class="miningWindow">
+
+            <form class="miningForm" action="javascript:submitMining()">
+
+                <div class="miningFormProperty">
+                    <label class="formInlineLabel">Previous:</label>
+                    <input class="formInlineField" type="text" value="xxx" id="mine_previous_field" readonly>
+                </div>
+
+                <hr class="new">
+
+                <div class="miningFormProperty">
+                    <label class="formInlineLabel">From:</label>
+                    <input class="formInlineField" type="text" value="xxx" id="mine_from_field" readonly>
+                </div>
+                <div class="miningFormProperty">
+                    <label class="formInlineLabel">To:</label>
+                    <input class="formInlineField" type="text" value="xxx" id="mine_to_field" readonly>
+                </div>
+                <div class="miningFormProperty">
+                    <label class="formInlineLabel">Amount:</label>
+                    <input class="formInlineField" type="number" id="mine_amount_field" value="10.00" readonly>
+                </div>
+                <div class="miningFormProperty">
+                    <label class="formInlineLabel">Number:</label> 
+                    <input class="formInlineField" type="text" value="10" id="mine_number_field" readonly>
+                </div>
+
+                <hr class="new">
+
+                <div class="miningFormProperty">
+                    <label class="formInlineLabel">Signature:</label>
+                    <input class="formInlineField" type="text" value="xxx" id="mine_signature_field" readonly>
+                </div>
+
+                <hr class="new">
+
+                <div class="miningFormProperty">
+                    <label class="formInlineLabel">Miner:</label>
+                    <input class="formInlineField" type="text" value="xxx" id="mine_miner_field" readonly>
+                </div>
+
+                <div class="miningFormProperty">
+                    <label class="formInlineLabel">Nonce:</label>
+                    <input class="formInlineField" type="text" value="xxx" id="mine_nonce_field" readonly>
+                </div>
+
+                <div class="miningFormProperty">
+                    <label class="formInlineLabel">Hash:</label>
+                    <input class="formInlineField" type="text" value="xxx" id="hash_hash_field" readonly>
+                </div>
+
+                <div class="miningFormProperty">
+                    <input class="miningSubmitButton" type="submit" value="SUBMIT">
+                </div>
+
+                <img src="/img/signatureImage" class="signatureImage">
+
+            </form>
 
         </div>
     </div>
@@ -328,8 +408,8 @@
                 <h2 class="transTitle">PENDING TRANSACTIONS</h2>
                 <h3 class="transTitle">Mine successfully to get 10.00 coins</h3>
             </div>
-            <div class="pendingList">
-                <div class="pendingTrans">
+            <div class="pendingList" id="pendingList">
+                <!-- <div class="pendingTrans">
                     <div class="transactionInfos">
                         <div class="transactionProperty">
                             <label class="TransInlineLabel" >From:</label>
@@ -362,41 +442,7 @@
                         <input type="button" value="Mine" class="mineButton">
                     </div>
                     
-                </div>
-                <div class="pendingTrans">
-                    <div class="transactionInfos">
-                        <div class="transactionProperty">
-                            <label class="TransInlineLabel" >From:</label>
-                            <input class="TransInlineField" type="text" value="xxx" readonly>
-                        </div>
-            
-                        <div class="transactionProperty">
-                            <label class="TransInlineLabel" >To:</label>
-                            <input class="TransInlineField" type="text" value="xxx" readonly>
-                        </div>
-            
-                        <div class="transactionProperty">
-                            <label class="TransInlineLabel" >Amount:</label>
-                            <input class="TransInlineField" type="text" value="xxx" readonly>
-                        </div>
-            
-                        <div class="transactionProperty">
-                            <label class="TransInlineLabel" >Number:</label>
-                            <input class="TransInlineField" type="text" value="xxx" readonly>
-                        </div>
-        
-                        <hr class="new">
-        
-                        <div class="transactionProperty">
-                            <label class="TransInlineLabel" >Signature:</label>
-                            <input class="TransInlineField" type="text" value="xxx" readonly>
-                        </div>
-                    </div>
-                    <div class="transactionMine">
-                        <input type="button" value="Mine" class="mineButton">
-                    </div>
-                    
-                </div>
+                </div> -->
             </div>
         </div>
         <div class="makeTransaction">
@@ -404,36 +450,32 @@
                 <h2 class="transTitle">Make Transaction</h2>
             </div>
             <div class="makeTransactionContent">
-                <form class="makeTransactionForm">
+                <form class="makeTransactionForm" action="javascript:submitTransaction()">
                     <div class="formProperty">
                         <label class="formInlineLabel">From:</label>
-                        <input class="formInlineField" type="text" value="xxx" readonly>
+                        <input class="formInlineField" type="text" value="xxx" id="mt_from_field" readonly>
                     </div>
                     <div class="formProperty">
                         <label class="formInlineLabel">To:</label>
-                        <select name="cars" class="formInlineField">
-                            <option value="name1">name1</option>
-                            <option value="name2">name2</option>
-                            <option value="name3">name3</option>
-                            <option value="name4">name4</option>
+                        <select name="cars" class="formInlineField" id="mt_to_field" onchange="updateSignature()" required>
                         </select>
                     </div>
                     <div class="formProperty">
                         <label class="formInlineLabel">Amount:</label>
-                        <input class="formInlineField" type="number" value="10.00">
+                        <input class="formInlineField" type="number" id="mt_amount_field" value="10.00" min="0" max="42949672.95" step="0.01" onchange="updateSignature()" required>
                     </div>
                     <div class="formProperty">
-                        <label class="formInlineLabel">Number:</label>
-                        <input class="formInlineField" type="text" value="10" readonly>
+                        <label class="formInlineLabel">Number:</label> 
+                        <input class="formInlineField" type="text" value="10" id="mt_number_field" readonly>
                     </div>
                     <hr class="new">
                     <div class="formProperty">
                         <label class="formInlineLabel">Signature:</label>
-                        <input class="formInlineField" type="text" value="xxx" readonly>
+                        <input class="formInlineField" type="text" value="xxx" id="mt_signature_field" readonly>
                     </div>
 
                     <div class="formProperty">
-                        <input class="submitButton" type="button" value="SUBMIT">
+                        <input class="submitButton" type="submit" value="SUBMIT">
                     </div>
 
                     <img src="/img/signatureImage" class="signatureImage">
@@ -444,6 +486,6 @@
         
     </div>
 
-    <script src="/dashboard/script" type="module"></script>
+    <script src="/dashboard/script"></script>
 </body>
 </html>

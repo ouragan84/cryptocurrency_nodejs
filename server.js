@@ -45,7 +45,7 @@ app.get('/dashboard', checkAuthenticated, (req, res) => {
     if(req.user.keys == null){
         return res.redirect('/keygen');
     }
-    res.render(path.join(__dirname, '/public','/dashboard','/index.html'), {name: req.user.name});
+    res.render(path.join(__dirname, '/public','/dashboard','/index.html'), {name: req.user.name, n: req.user.keys.private.n, d: req.user.keys.private.d, e: req.user.keys.public.e });
 })
 
 app.get('/login', checkNotAuthenticated, (req, res) => {
@@ -73,6 +73,11 @@ app.post('/register', checkNotAuthenticated, async (req, res) => {
         return;
     }
 
+    if("xxx Coinbase xxx" === req.body.name){
+        renderRegisterPage(res, {error: "Name Reserved"})
+        return;
+    }
+
     try {
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
         user = {
@@ -92,8 +97,22 @@ app.post('/register', checkNotAuthenticated, async (req, res) => {
         renderRegisterPage(res, {error: "There Has Been an error"})
         return;
     }
-    console.log(users);
+    // console.log(users);
     
+})
+
+app.get('/publickeys', (req, res) => {
+    const keys = [];
+
+    users.forEach(user => {
+        if(user.keys != null)
+            keys.push({
+                name:user.name,
+                key: user.keys.public
+            })
+    });
+
+    res.send(keys);
 })
 
 app.get('/keygen', checkAuthenticated, (req, res) => {
@@ -104,18 +123,21 @@ app.get('/keygen', checkAuthenticated, (req, res) => {
 })
 
 app.post('/keygen', checkAuthenticated, async (req, res) => {
-    if(req.user.keys != null){
-        return res.redirect('/dashboard');
-    }
-    user.keys = {
-        public:{
-            e:req.body.e,
-            n:req.body.n
-        },
-        private:{
-            d:req.body.d,
-            n:req.body.n
+    if(req.user.keys == null){
+        req.user.keys = {
+            public:{
+                e:req.body.e,
+                n:req.body.n
+            },
+            private:{
+                d:req.body.d,
+                n:req.body.n
+            }
         }
+        io.emit('new-user', {
+            name: req.user.name,
+            key: req.user.keys.public
+        });
     }
     console.log(users);
     return res.redirect('/dashboard');
@@ -194,8 +216,31 @@ function checkNotAuthenticated(req, res, next) {
     next();
 }
 
-console.log("ENV PORT = " + process.env.PORT)
 const port = process.env.PORT || 8090;
+const server = app.listen(port, () => console.log("listening on port " + port))
+const io = require('socket.io')(server, {cors: {origin: '*'}})
 
+io.on('connection', (socket) => {
+    console.log("USER CONNECTED", socket.id);
 
-app.listen(port, () => console.log("listening on port " + port))
+    socket.on('new-transaction', (data) => {
+        socket.emit('new-transaction', data);
+        socket.broadcast.emit('new-transaction', data);
+    })
+
+    
+    socket.on('invalid-transaction', (data) => {
+        socket.broadcast.emit('invalid-transaction', data);
+    })
+
+    socket.on('mined-transaction', (data) => {
+        socket.broadcast.emit('mined-transaction', data);
+    })
+})
+
+/*
+socket.broadcast.emit('new-transaction', {
+            name: req.user.name,
+            key: req.user.keys.public
+        });
+        */

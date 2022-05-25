@@ -1,3 +1,7 @@
 body {
     background-color: rgb(152, 233, 229);
 }
+
+input {
+    width: 80%;
+}

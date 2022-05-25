@@ -338,3 +338,42 @@ h3.transTitle{
     background-color: white;
     flex-wrap: nowrap;
 }
+
+.miningForm{
+    width: 80%;
+    height: 80%;
+    min-width: 150pt;
+    min-height: 150pt;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;;
+    border-radius: 8px;
+    background-color: white;
+    flex-wrap: nowrap;
+}
+
+.miningFormProperty{
+    margin: 2pt;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: flex-start;
+}
+
+/* .formInlineLabel{
+    margin-right: 5pt;
+} */
+/* 
+.formInlineField{
+    width: 100%;
+} */
+
+.miningSubmitButton{
+    justify-self: center;
+    width: 50%;
+    margin-left: 25%;
+}
+
+/* .signatureImage{
+    width: 70%;
+    margin-left: 15%;
+} */
