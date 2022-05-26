@@ -1,7 +1,9 @@
 const url = 'http://localhost:8090';
 const socket = io(url)
 let pendingTransaction = [];
+let blockChain = [];
 let publicKeys = new Map();
+let isMining = false;
 
 startUp();
 
@@ -14,6 +16,9 @@ function startUp(){
         addUser(p[i]);
     }
     updateSignature();
+
+    SHA160(BigInt("0x000000000000000000000000000123"));
+    SHA160(BigInt("0x000000000000000000000000000124"));
 }
 
 function httpGet(endPoint)
@@ -40,13 +45,17 @@ socket.on('invalid-transaction', (data) => {
 
 //IMPLEMENT
 socket.on('mined-block', (data) => {
-    alert("got new block");
+    // alert("got new block");
 
-    if(isTransactionFundValid(data) && isTransactionNumberValid(data) && isTransactionSignatureValid(data)) return;
+    if(!verifyTransactionFund(data) || !verifyTransactionNumber(data) || !verifyTransactionSignature(data) || !verifyPrevious(data, blockChain.length) || !verifyHash(data))
     {
-        alert("seems legit");
-        removeTransaction(data);
+        console.log("recieved transaction did not pass one of the tests")
     }
+
+    removeTransaction(data);
+    addBlock(data, blockChain.length);
+    blockChain.push(data)
+
 })
 
 socket.on('new-user', (data) => {
@@ -116,6 +125,65 @@ function addTransaction(data, i){
     "</div>";
 }
 
+function addBlock(data, i){
+
+    document.getElementById('block_chain').innerHTML += 
+    (i > 0? " <img src=\"/img/arrow\" class=\"arrow\"/>": "") + 
+
+   " <div class=\"block\">    " +
+   "         <div class=\"blockProperty\">    " +
+   "             <label class=\"inlineLabel\" >Previous:</label>    " +
+   "             <input class=\"inlineField\" type=\"text\" value=\"" + data.previous + "\" readonly>    " +
+   "         </div>    " +
+   " " +
+   "         <hr class=\"new\">    " +
+   " " +
+   "         <div class=\"blockProperty\">    " +
+   "             <label class=\"inlineLabel\" >From:</label>    " +
+   "             <input class=\"inlineField\" type=\"text\" value=\"" + data.from + "\" readonly>    " +
+   "         </div>    " +
+   " " +
+   "         <div class=\"blockProperty\">    " +
+   "             <label class=\"inlineLabel\" >To:</label>    " +
+   "             <input class=\"inlineField\" type=\"text\" value=\"" + data.to + "\" readonly>    " +
+   "         </div>    " +
+   " " +
+   "         <div class=\"blockProperty\">    " +
+   "             <label class=\"inlineLabel\" >Amount:</label>    " +
+   "             <input class=\"inlineField\" type=\"text\" value=\"" + data.amount + "\" readonly>    " +
+   "         </div>    " +
+   " " +
+   "         <div class=\"blockProperty\">    " +
+   "             <label class=\"inlineLabel\" >Number:</label>    " +
+   "             <input class=\"inlineField\" type=\"text\" value=\"" + data.number + "\" readonly>    " +
+   "         </div>    " +
+   " " +
+   "         <hr class=\"new\">    " +
+   " " +
+   "         <div class=\"blockProperty\">    " +
+   "             <label class=\"inlineLabel\" >Signature:</label>    " +
+   "             <input class=\"inlineField\" type=\"text\" value=\"" + data.signature + "\" readonly>    " +
+   "         </div>    " +
+   " " +
+   "         <hr class=\"new\">    " +
+   " " +
+   "         <div class=\"blockProperty\">    " +
+   "             <label class=\"inlineLabel\" >Miner:</label>    " +
+   "             <input class=\"inlineField\" type=\"text\" value=\"" + data.miner + "\" readonly>    " +
+   "         </div>    " +
+   " " +
+   "         <div class=\"blockProperty\">    " +
+   "             <label class=\"inlineLabel\" >Nonce:</label>    " +
+   "             <input class=\"inlineField\" type=\"text\" value=\"" + data.nonce + "\" readonly>    " +
+   "         </div>    " +
+   " " +
+   "         <div class=\"blockProperty\">    " +
+   "             <label class=\"inlineLabel\" >Hash:</label>    " +
+   "             <input class=\"inlineField\" type=\"text\" value=\"" + data.hash + "\" readonly>    " +
+   "         </div>    " +
+   "     </div>    ";
+} 
+
 function updateSignature(){
     const transaction = {
         from: document.getElementById("mt_from_field").value,
@@ -129,7 +197,7 @@ function updateSignature(){
     document.getElementById("mt_signature_field").value = sig.toString(16);
 }
 
-async function mineTransaction(i){
+function mineTransaction(i){
     let miningData = pendingTransaction[i]
     document.getElementById("mine_submit_button").disabled = true;
     document.getElementById("mine_submit_button").value = "Next";
@@ -142,6 +210,8 @@ async function mineTransaction(i){
     document.getElementById("mine_number_field").value = miningData.number;
     document.getElementById("mine_signature_field").value = miningData.signature;
     document.getElementById("mine_miner_field").value = window.name;
+    document.getElementById("mine_nonce_field").value = 0;
+    document.getElementById("mine_hash_field").value = "xxxxx";
 
     Array.prototype.forEach.call(document.getElementsByClassName("checkmarkImage"), function(el) {
         el.style.visibility = 'hidden'
@@ -149,49 +219,88 @@ async function mineTransaction(i){
 
     document.getElementById("mining").style.visibility = 'visible';
 
-    if( !isTransactionFundValid(miningData) ){
-        return invalidateTransaction(miningData, "Funds are not valid", "checkmark_image_funds");
-    }
-    document.getElementById("checkmark_image_funds").src = '/img/checkmark';
-    document.getElementById("checkmark_image_funds").style.visibility = 'visible'
+    isMining = true;
 
-    if( !isTransactionNumberValid(miningData) ){
-        return invalidateTransaction(miningData, "Number is not valid", "checkmark_image_num");
-    }
-    document.getElementById("checkmark_image_num").src = '/img/checkmark';
-    document.getElementById("checkmark_image_num").style.visibility = 'visible'
-
-    if( !isTransactionSignatureValid(miningData) ){
-        return invalidateTransaction(miningData, "Signature is not valid", "checkmark_image_sig");
-    }
-    document.getElementById("checkmark_image_sig").src = '/img/checkmark';
-    document.getElementById("checkmark_image_sig").style.visibility = 'visible'
-
-    socket.emit('mined-block', {
-            
-    });
-    removeTransaction(miningData);
-
-    document.getElementById("mine_submit_button").disabled = false;
-    document.getElementById("mine_message").innerText = "Success !";
-    document.getElementById("mine_message").style.color = "#696969";
-
+    setTimeout(() => {
+        if(isTransactionFundValid(miningData))
+            setTimeout(() => {
+                if(isTransactionNumberValid(miningData))
+                    setTimeout(() => {
+                        if(isTransactionSignatureValid(miningData))
+                            setTimeout(() => {
+                                tryHashes(0, {
+                                    previous: "a1b1c1",
+                                    miningData
+                                }, 
+                                    getBlockHex({
+                                        previous: "a1b1c1",
+                                        from: miningData.from,
+                                        to: miningData.to,
+                                        amount: miningData.amount,
+                                        number: miningData.number,
+                                        signature: miningData.signature,
+                                        miner: window.name,
+                                        nonce: 0
+                                    }
+                                ));
+                            }, "0")
+                    }, "100")
+            }, "100")
+    }, "100")
     // alert("Mining Sucessful!");
 }
 
-//IMPLEMENT
-function isTransactionFundValid(data){
-    if( !publicKeys.has(data.from) ) return false;
+function isTransactionFundValid(data){    
+    if(!verifyTransactionFund(data) ){
+        invalidateTransaction(miningData, "Funds are not valid (We don't want to waste time mining a block that we know is invalid)", "checkmark_image_funds");
+        return false;
+    }
+    document.getElementById("checkmark_image_funds").src = '/img/checkmark';
+    document.getElementById("checkmark_image_funds").style.visibility = 'visible'
     return true;
 }
 
 //IMPLEMENT
+function verifyTransactionFund(data){
+    if( !publicKeys.has(data.from)) return false;
+    return true;
+}
+
 function isTransactionNumberValid(data){
+    if( !verifyTransactionNumber(data) ){
+        invalidateTransaction(data, "Number is not valid  (We don't want to waste time mining a block that we know is invalid)", "checkmark_image_num");
+        return false;
+    }
+    document.getElementById("checkmark_image_num").src = '/img/checkmark';
+    document.getElementById("checkmark_image_num").style.visibility = 'visible'
+    return true;
+}
+
+//IMPLEMENT
+function verifyTransactionNumber(data){
     return true;
 }
 
 function isTransactionSignatureValid(data){
+    if( !verifyTransactionSignature(data) ){
+        invalidateTransaction(data, "Signature is not valid  (We don't want to waste time mining a block that we know is invalid)", "checkmark_image_sig");
+        return false;
+    }
+    document.getElementById("checkmark_image_sig").src = '/img/checkmark';
+    document.getElementById("checkmark_image_sig").style.visibility = 'visible'
+    return true;
+}
+
+function verifyTransactionSignature(data){
     return doesSignatureMatch(data, BigInt("0x"+data.signature), publicKeys.get(data.from));
+}
+
+function verifyPrevious(data, i){
+    return i <= 0 || data.previous == blockChain[i-1].hash;
+}
+
+function verifyHash(data){
+    return true;
 }
 
 function invalidateTransaction(data, message, img_id){
@@ -205,8 +314,69 @@ function invalidateTransaction(data, message, img_id){
     removeTransaction(data);
 }
 
+const zeroBits = 4n;
+const shaBits = 160n;
+const incrementRender = 1;
+const nonceL = 64n;
+
+function tryHashes(i, miningData, blockHex){
+
+    if(!isMining) return;
+
+    // test if any other transactions arrived
+    let j = i;
+    let hash;
+
+    while( j < i + incrementRender ){
+
+        console.log(bigIntGetStrNBits(blockHex.h, blockHex.n))
+        hash = SHA160(blockHex.h);
+        // actually want to try hash  bigIntGetStrNBits
+        if( hash < 2n ** (shaBits - zeroBits)){
+            
+            document.getElementById("mine_nonce_field").value = j
+            document.getElementById("mine_hash_field").value = bigIntGetStrNBits(hash, shaBits)
+            document.getElementById("mine_submit_button").disabled = false;
+            document.getElementById("mine_message").innerText = "Success! Sent out the block to everyone else";
+            document.getElementById("mine_message").style.color = "#16702e";
+
+            setTimeout(() => {
+                socket.emit('mined-block', {
+                        previous: miningData.previous,
+                        from: miningData.from,
+                        to: miningData.to,
+                        amount: miningData.amount,
+                        number: miningData.number,
+                        signature: miningData.signature,
+                        miner: window.name,
+                        nonce: j,
+                        hash: bigIntGetStrNBits(hash, shaBits)
+                });
+                removeTransaction(miningData);
+            }, "10")
+
+            return;
+        }
+
+        ++j;
+        blockHex.h = ((blockHex.h >> nonceL) << nonceL) + BigInt.asUintN(Number(nonceL), BigInt(j))
+    }
+
+    document.getElementById("mine_nonce_field").value = j-1;
+    document.getElementById("mine_hash_field").value = bigIntGetStrNBits(hash, shaBits);
+
+    setTimeout(() => {
+        tryHashes(j, miningData, blockHex);
+    }, "3000")
+    
+}
+
 function closeMining(){
+    isMining = false;
     document.getElementById("mining").style.visibility = 'hidden';
+    Array.prototype.forEach.call(document.getElementsByClassName("checkmarkImage"), function(el) {
+        el.style.visibility = 'hidden'
+    });
     //reset everything else here
 }
 
@@ -232,6 +402,8 @@ function submitTransaction() {
     }
     socket.emit('new-transaction', message);
 }
+
+
 
 // returns bitlength of bigint
 function bitLength (a) {  
@@ -294,16 +466,26 @@ function SHA160(message){
 
     const mlBeforePadding = BigInt( bitLength(message) );
 
+    console.log("mlBeforePadding", mlBeforePadding)
+
     const mlAfterPadding = BigInt( bitLength(message) );
+
+    console.log("mlAfterPadding", mlAfterPadding)
+
     let ml = mlAfterPadding - (mlAfterPadding + 64n)%512n + 512n;
+
+    console.log("ml", ml)
+
     let blocks = demcomposeToArr(message + mlBeforePadding * 2n** ml, bitsPerBlock, ml+64n);
 
+    console.log("blocks", blocks)
+
     // init
-    let h0 = BigInt(0x67452301);
-    let h1 = BigInt(0xEFCDAB89);
-    let h2 = BigInt(0x98BADCFE);
-    let h3 = BigInt(0x10325476);
-    let h4 = BigInt(0xC3D2E1F0);
+    let h0 = BigInt("0x67452301");
+    let h1 = BigInt("0xEFCDAB89");
+    let h2 = BigInt("0x98BADCFE");
+    let h3 = BigInt("0x10325476");
+    let h4 = BigInt("0xC3D2E1F0");
 
     let a, b, c, d, e;
 
@@ -356,7 +538,14 @@ function SHA160(message){
         h2 = BigInt.asUintN(32, h2 + c);
         h3 = BigInt.asUintN(32, h3 + d);
         h4 = BigInt.asUintN(32, h4 + e);
-    }
+
+        console.log("Hvals: ", bigIntGetStrNBits(h0, 32n), bigIntGetStrNBits(h1, 32n), 
+        bigIntGetStrNBits(h2, 32n), bigIntGetStrNBits(h3, 32n), bigIntGetStrNBits(h4, 32n))
+    }//bigIntGetStrNBits(hash, shaBits)
+
+
+    console.log("Ending Hash: ", bigIntGetStrNBits(BigInt.asUintN(160, 
+        (h0 << 128n) | (h1 << 96n) | (h2 << 64n) | (h3 << 32n) | h4), 160n))
 
     return BigInt.asUintN(160, (h0 << 128n) | (h1 << 96n) | (h2 << 64n) | (h3 << 32n) | h4);
 }
@@ -379,6 +568,44 @@ function numToString(number){
         }
     }
     return str;
+}
+
+function getBlockHex(rawBlock){
+    const prevLength = 160;
+    const fromLength = 64 * 8;
+    const toLength = 64 * 8;
+    const amountLength = 32;
+    const tNumLength = 32;
+    const sigLength = 1024;
+    const minerLength = 64 * 8;
+    const nonceLength = 64;
+
+    let blockHex = BigInt.asUintN(prevLength, BigInt("0x"+rawBlock.previous))
+
+    blockHex <<= BigInt(fromLength);
+    blockHex += stringToNum(rawBlock.from, fromLength);
+    
+    blockHex <<= BigInt(toLength);
+    blockHex += stringToNum(rawBlock.to, toLength);
+
+    blockHex <<= BigInt(amountLength);
+    blockHex += BigInt.asUintN(amountLength, BigInt(Math.floor(rawBlock.amount*100)));
+
+    blockHex <<= BigInt(tNumLength);
+    blockHex += BigInt.asUintN(tNumLength, BigInt(Math.floor(rawBlock.number)));
+
+    blockHex <<= BigInt(sigLength);
+    blockHex += BigInt.asUintN(sigLength, BigInt("0x" + rawBlock.signature));
+
+    blockHex <<= BigInt(minerLength);
+    blockHex += stringToNum(rawBlock.miner, minerLength);
+
+    blockHex <<= BigInt(nonceLength);
+    blockHex += BigInt.asUintN(nonceLength, BigInt(Math.floor(rawBlock.nonce)));
+
+    return {h: blockHex, 
+        n: BigInt(prevLength+fromLength+toLength+amountLength+
+            tNumLength+sigLength+minerLength+nonceLength)};
 }
 
 function getTransactionHex(rawTransaction){
@@ -432,4 +659,12 @@ function doesSignatureMatch(transaction, signature, publicKey){
 
     const ver = modPow(signature, publicKey.e, publicKey.n);
     return (ver == getTransactionHex(transaction)%publicKey.n);
+}
+
+function bigIntGetStrNBits(number, bits){
+    const zeros = Math.floor( (Number(bits) - bitLength(number)) / 4 ) ;
+    let str = number.toString(16);
+    for(let i = 0; i < zeros; i++)
+        str = "0"+str;
+    return str;
 }

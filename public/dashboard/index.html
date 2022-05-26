@@ -25,6 +25,7 @@
         window.keys = keys;
     </script>
     <script src="https://cdn.socket.io/socket.io-3.0.1.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <link rel="stylesheet" href="/dashboard/style">
     <link rel="icon" href="/img/coin">
     <title>Chunk Coin</title>
@@ -57,7 +58,7 @@
 
             <hr class="new">
 
-            <form class="miningForm" action="javascript:submitMining()">
+            <form class="miningForm" action="javascript:closeMining()">
 
                 <h3 class="miningBlockTitle"> Creating Block: </h3>
 
@@ -119,7 +120,6 @@
 
         </div>
     </div>
-    
 
     <div class="banner">
         <form action="/logout?_method=DELETE" method="POST">
@@ -147,62 +147,9 @@
         </a>
     </div>
 
-    <div class="chain">
-        <div class="block">
-            <div class="blockProperty">
-                <label class="inlineLabel" >Previous:</label>
-                <input class="inlineField" type="text" value="xxx" readonly>
-            </div>
+    <div class="chain" id="block_chain">
 
-            <hr class="new">
-
-            <div class="blockProperty">
-                <input class="inlineField" type="text" value="xxx COINBASE xxx" readonly>
-            </div>
-
-            <div class="blockProperty">
-                <label class="inlineLabel" >To:</label>
-                <input class="inlineField" type="text" value="xxx" readonly>
-            </div>
-
-            <div class="blockProperty">
-                <label class="inlineLabel" >Amount:</label>
-                <input class="inlineField" type="text" value="xxx" readonly>
-            </div>
-
-            <div class="blockProperty">
-                <label class="inlineLabel" >Number:</label>
-                <input class="inlineField" type="text" value="xxx" readonly>
-            </div>
-
-            <hr class="new">
-
-            <div class="blockProperty">
-                <label class="inlineLabel" >Signature:</label>
-                <input class="inlineField" type="text" value="xxx" readonly>
-            </div>
-
-            <hr class="new">
-
-            <div class="blockProperty">
-                <label class="inlineLabel" >Miner:</label>
-                <input class="inlineField" type="text" value="xxx" readonly>
-            </div>
-
-            <div class="blockProperty">
-                <label class="inlineLabel" >Nonce:</label>
-                <input class="inlineField" type="text" value="xxx" readonly>
-            </div>
-
-            <div class="blockProperty">
-                <label class="inlineLabel" >Hash:</label>
-                <input class="inlineField" type="text" value="xxx" readonly>
-            </div>
-        </div>
-
-        <img src="/img/arrow" class="arrow"/>
-
-        <div class="block">
+        <!-- <div class="block">
             <div class="blockProperty">
                 <label class="inlineLabel" >Previous:</label>
                 <input class="inlineField" type="text" value="xxx" readonly>
@@ -253,173 +200,8 @@
                 <label class="inlineLabel" >Hash:</label>
                 <input class="inlineField" type="text" value="xxx" readonly>
             </div>
-        </div>
-
-        <img src="/img/arrow" class="arrow"/>
-
-        <div class="block">
-            <div class="blockProperty">
-                <label class="inlineLabel" >Previous:</label>
-                <input class="inlineField" type="text" value="xxx" readonly>
-            </div>
-
-            <hr class="new">
-
-            <div class="blockProperty">
-                <label class="inlineLabel" >From:</label>
-                <input class="inlineField" type="text" value="xxx" readonly>
-            </div>
-
-            <div class="blockProperty">
-                <label class="inlineLabel" >To:</label>
-                <input class="inlineField" type="text" value="xxx" readonly>
-            </div>
-
-            <div class="blockProperty">
-                <label class="inlineLabel" >Amount:</label>
-                <input class="inlineField" type="text" value="xxx" readonly>
-            </div>
-
-            <div class="blockProperty">
-                <label class="inlineLabel" >Number:</label>
-                <input class="inlineField" type="text" value="xxx" readonly>
-            </div>
-
-            <hr class="new">
-
-            <div class="blockProperty">
-                <label class="inlineLabel" >Signature:</label>
-                <input class="inlineField" type="text" value="xxx" readonly>
-            </div>
-
-            <hr class="new">
-
-            <div class="blockProperty">
-                <label class="inlineLabel" >Miner:</label>
-                <input class="inlineField" type="text" value="xxx" readonly>
-            </div>
-
-            <div class="blockProperty">
-                <label class="inlineLabel" >Nonce:</label>
-                <input class="inlineField" type="text" value="xxx" readonly>
-            </div>
-
-            <div class="blockProperty">
-                <label class="inlineLabel" >Hash:</label>
-                <input class="inlineField" type="text" value="xxx" readonly>
-            </div>
-        </div>
-
-        <img src="/img/arrow" class="arrow"/>
-
-        <div class="block">
-            <div class="blockProperty">
-                <label class="inlineLabel" >Previous:</label>
-                <input class="inlineField" type="text" value="xxx" readonly>
-            </div>
-
-            <hr class="new">
-
-            <div class="blockProperty">
-                <label class="inlineLabel" >From:</label>
-                <input class="inlineField" type="text" value="xxx" readonly>
-            </div>
-
-            <div class="blockProperty">
-                <label class="inlineLabel" >To:</label>
-                <input class="inlineField" type="text" value="xxx" readonly>
-            </div>
-
-            <div class="blockProperty">
-                <label class="inlineLabel" >Amount:</label>
-                <input class="inlineField" type="text" value="xxx" readonly>
-            </div>
-
-            <div class="blockProperty">
-                <label class="inlineLabel" >Number:</label>
-                <input class="inlineField" type="text" value="xxx" readonly>
-            </div>
-
-            <hr class="new">
-
-            <div class="blockProperty">
-                <label class="inlineLabel" >Signature:</label>
-                <input class="inlineField" type="text" value="xxx" readonly>
-            </div>
-
-            <hr class="new">
-
-            <div class="blockProperty">
-                <label class="inlineLabel" >Miner:</label>
-                <input class="inlineField" type="text" value="xxx" readonly>
-            </div>
-
-            <div class="blockProperty">
-                <label class="inlineLabel" >Nonce:</label>
-                <input class="inlineField" type="text" value="xxx" readonly>
-            </div>
-
-            <div class="blockProperty">
-                <label class="inlineLabel" >Hash:</label>
-                <input class="inlineField" type="text" value="xxx" readonly>
-            </div>
-        </div>
-
-        <img src="/img/arrow" class="arrow"/>
-
-        <div class="block">
-            <div class="blockProperty">
-                <label class="inlineLabel" >Previous:</label>
-                <input class="inlineField" type="text" value="xxx" readonly>
-            </div>
-
-            <hr class="new">
-
-            <div class="blockProperty">
-                <label class="inlineLabel" >From:</label>
-                <input class="inlineField" type="text" value="xxx" readonly>
-            </div>
-
-            <div class="blockProperty">
-                <label class="inlineLabel" >To:</label>
-                <input class="inlineField" type="text" value="xxx" readonly>
-            </div>
-
-            <div class="blockProperty">
-                <label class="inlineLabel" >Amount:</label>
-                <input class="inlineField" type="text" value="xxx" readonly>
-            </div>
-
-            <div class="blockProperty">
-                <label class="inlineLabel" >Number:</label>
-                <input class="inlineField" type="text" value="xxx" readonly>
-            </div>
-
-            <hr class="new">
-
-            <div class="blockProperty">
-                <label class="inlineLabel" >Signature:</label>
-                <input class="inlineField" type="text" value="xxx" readonly>
-            </div>
-
-            <hr class="new">
-
-            <div class="blockProperty">
-                <label class="inlineLabel" >Miner:</label>
-                <input class="inlineField" type="text" value="xxx" readonly>
-            </div>
-
-            <div class="blockProperty">
-                <label class="inlineLabel" >Nonce:</label>
-                <input class="inlineField" type="text" value="xxx" readonly>
-            </div>
-
-            <div class="blockProperty">
-                <label class="inlineLabel" >Hash:</label>
-                <input class="inlineField" type="text" value="xxx" readonly>
-            </div>
-        </div>
-
+        </div> -->
+        
     </div>
 
     <div class="transactions">
