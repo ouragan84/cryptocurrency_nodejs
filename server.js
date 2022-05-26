@@ -192,6 +192,12 @@ app.post('/keygen', checkAuthenticated, async (req, res) => {
     app.get('/img/verificationImage', (req, res) => {
         res.sendFile(path.join(__dirname, '/public','/img','/verificationImage.JPG'));
     })
+    app.get('/img/crossmark', (req, res) => {
+        res.sendFile(path.join(__dirname, '/public','/img','/crossmark.png'));
+    })
+    app.get('/img/checkmark', (req, res) => {
+        res.sendFile(path.join(__dirname, '/public','/img','/checkmark.png'));
+    }) 
 }
 
 app.delete('/logout', (req, res) => {
@@ -233,8 +239,9 @@ io.on('connection', (socket) => {
         socket.broadcast.emit('invalid-transaction', data);
     })
 
-    socket.on('mined-transaction', (data) => {
-        socket.broadcast.emit('mined-transaction', data);
+    socket.on('mined-block', (data) => {
+        socket.emit('mined-block', data);
+        socket.broadcast.emit('mined-block', data);
     })
 })
 

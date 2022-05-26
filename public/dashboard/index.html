@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- <script src="/scripts/cryptobigint" type="module"></script> -->
     <script>
         const name = '<%=name%>';
         const e = '<%=e%>';
@@ -38,62 +37,83 @@
         <button class="miningWindowClose" onclick="closeMining()">X</button>
 
         <div class="miningWindow">
+            
+            <div class="miningVerification">
+                <h3 class="miningVerificationTitle">Transaction Verification</h3>
+                <div class="miningVerificationStep">
+                    <p class="miningVerificationStepText"> - User has funds: </p>
+                    <img class="checkmarkImage" src="/img/checkmark" id="checkmark_image_funds">
+                </div>
+                <div class="miningVerificationStep">
+                    <p class="miningVerificationStepText"> - Number is correct: </p>
+                    <img class="checkmarkImage" src="/img/checkmark" id="checkmark_image_num">
+                </div>
+                <div class="miningVerificationStep">
+                    <p class="miningVerificationStepText"> - Signature is valid:</p>
+                    <img class="checkmarkImage" src="/img/crossmark" id="checkmark_image_sig">
+                </div>
+                <img class="verificationImg" src="/img/verificationImage">
+            </div>
+
+            <hr class="new">
 
             <form class="miningForm" action="javascript:submitMining()">
 
+                <h3 class="miningBlockTitle"> Creating Block: </h3>
+
                 <div class="miningFormProperty">
-                    <label class="formInlineLabel">Previous:</label>
-                    <input class="formInlineField" type="text" value="xxx" id="mine_previous_field" readonly>
+                    <label class="miningFormInlineLabel">Previous:</label>
+                    <input class="miningFormInlineField" type="text" value="xxx" id="mine_previous_field" readonly>
                 </div>
 
                 <hr class="new">
 
                 <div class="miningFormProperty">
-                    <label class="formInlineLabel">From:</label>
-                    <input class="formInlineField" type="text" value="xxx" id="mine_from_field" readonly>
+                    <label class="miningFormInlineLabel">From:</label>
+                    <input class="miningFormInlineField" type="text" value="xxx" id="mine_from_field" readonly>
                 </div>
                 <div class="miningFormProperty">
-                    <label class="formInlineLabel">To:</label>
-                    <input class="formInlineField" type="text" value="xxx" id="mine_to_field" readonly>
+                    <label class="miningFormInlineLabel">To:</label>
+                    <input class="miningFormInlineField" type="text" value="xxx" id="mine_to_field" readonly>
                 </div>
                 <div class="miningFormProperty">
-                    <label class="formInlineLabel">Amount:</label>
-                    <input class="formInlineField" type="number" id="mine_amount_field" value="10.00" readonly>
+                    <label class="miningFormInlineLabel">Amount:</label>
+                    <input class="miningFormInlineField" type="number" id="mine_amount_field" value="00.00" readonly>
                 </div>
                 <div class="miningFormProperty">
-                    <label class="formInlineLabel">Number:</label> 
-                    <input class="formInlineField" type="text" value="10" id="mine_number_field" readonly>
+                    <label class="miningFormInlineLabel">Number:</label> 
+                    <input class="miningFormInlineField" type="text" value="0" id="mine_number_field" readonly>
                 </div>
 
                 <hr class="new">
 
                 <div class="miningFormProperty">
-                    <label class="formInlineLabel">Signature:</label>
-                    <input class="formInlineField" type="text" value="xxx" id="mine_signature_field" readonly>
+                    <label class="miningFormInlineLabel">Signature:</label>
+                    <input class="miningFormInlineField" type="text" value="xxx" id="mine_signature_field" readonly>
                 </div>
 
                 <hr class="new">
 
                 <div class="miningFormProperty">
-                    <label class="formInlineLabel">Miner:</label>
-                    <input class="formInlineField" type="text" value="xxx" id="mine_miner_field" readonly>
+                    <label class="miningFormInlineLabel">Miner:</label>
+                    <input class="miningFormInlineField" type="text" value="xxx" id="mine_miner_field" readonly>
                 </div>
 
                 <div class="miningFormProperty">
-                    <label class="formInlineLabel">Nonce:</label>
-                    <input class="formInlineField" type="text" value="xxx" id="mine_nonce_field" readonly>
+                    <label class="miningFormInlineLabel">Nonce:</label>
+                    <input class="miningFormInlineField" type="text" value="xxx" id="mine_nonce_field" readonly>
                 </div>
 
                 <div class="miningFormProperty">
-                    <label class="formInlineLabel">Hash:</label>
-                    <input class="formInlineField" type="text" value="xxx" id="hash_hash_field" readonly>
+                    <label class="miningFormInlineLabel">Hash:</label>
+                    <input class="miningFormInlineField" type="text" value="xxx" id="mine_hash_field" readonly>
                 </div>
+
+                <p class="mine_message" id="mine_message">Error goes here</p>
 
                 <div class="miningFormProperty">
-                    <input class="miningSubmitButton" type="submit" value="SUBMIT">
+                    <input class="miningSubmitButton" id="mine_submit_button" type="submit" value="SUBMIT" disabled>
                 </div>
-
-                <img src="/img/signatureImage" class="signatureImage">
 
             </form>
 

@@ -2,10 +2,10 @@ const url = 'http://localhost:8090';
 const socket = io(url)
 let pendingTransaction = [];
 let publicKeys = new Map();
-let miningData = null;
 
 startUp();
 
+//ADD GET BC
 function startUp(){
     console.log("dashboard script loaded !");
     document.getElementById("mt_from_field").value = window.name;
@@ -30,24 +30,23 @@ socket.on('new-transaction', (data) => {
 })
 
 socket.on('invalid-transaction', (data) => {
-    if(isTransactionValid(data)) return;
-
-    let i = getIndexOfTransaction(data);
-    if(i < 0) return;
+    if(isTransactionFundValid(data) && isTransactionNumberValid(data) && isTransactionSignatureValid(data)) return;
 
     if(data.from == window.name)
         alert("One of your transaction has been invalidated");
-    removeTransaction(i);
+
+    removeTransaction(data);
 })
 
-socket.on('mined-transaction', (data) => {
+//IMPLEMENT
+socket.on('mined-block', (data) => {
+    alert("got new block");
 
-    let i =  getIndexOfTransaction(data);
-
-    alert(i + "has been mined (but not checked yet)");
-
-    if(i < 0) return;
-    removeTransaction(i);
+    if(isTransactionFundValid(data) && isTransactionNumberValid(data) && isTransactionSignatureValid(data)) return;
+    {
+        alert("seems legit");
+        removeTransaction(data);
+    }
 })
 
 socket.on('new-user', (data) => {
@@ -55,6 +54,7 @@ socket.on('new-user', (data) => {
 })
 
 function addUser(user){
+    if(publicKeys.get(user.name) != null) return;
     document.getElementById("mt_to_field").innerHTML += "<option value=" + user.name + ">" + user.name + "</option>";
     publicKeys.set(
         user.name,
@@ -67,8 +67,6 @@ function addUser(user){
 }
 
 function getIndexOfTransaction(data){
-    console.log("finding ", data, "in", pendingTransaction);
-
     for(let j = 0; j < pendingTransaction.length; j++){
         if(data.from == pendingTransaction[j].from
             && data.to == pendingTransaction[j].to
@@ -131,17 +129,80 @@ function updateSignature(){
     document.getElementById("mt_signature_field").value = sig.toString(16);
 }
 
-function mineTransaction(i){
-    miningData = pendingTransaction[i]
+async function mineTransaction(i){
+    let miningData = pendingTransaction[i]
+    document.getElementById("mine_submit_button").disabled = true;
+    document.getElementById("mine_submit_button").value = "Next";
+    document.getElementById("mine_message").innerText = "";
+
+    document.getElementById("mine_previous_field").value = "xxxxx"; // do that
+    document.getElementById("mine_from_field").value = miningData.from;
+    document.getElementById("mine_to_field").value = miningData.to;
+    document.getElementById("mine_amount_field").value = miningData.amount;
+    document.getElementById("mine_number_field").value = miningData.number;
+    document.getElementById("mine_signature_field").value = miningData.signature;
+    document.getElementById("mine_miner_field").value = window.name;
+
+    Array.prototype.forEach.call(document.getElementsByClassName("checkmarkImage"), function(el) {
+        el.style.visibility = 'hidden'
+    });
+
     document.getElementById("mining").style.visibility = 'visible';
 
-    if(isTransactionValid(pendingTransaction[i])){
-        socket.emit('mined-transaction', pendingTransaction[i]);
-        removeTransaction(i);
-    }else{
-        socket.emit('invalid-transaction', pendingTransaction[i]);
-        removeTransaction(i);
+    if( !isTransactionFundValid(miningData) ){
+        return invalidateTransaction(miningData, "Funds are not valid", "checkmark_image_funds");
     }
+    document.getElementById("checkmark_image_funds").src = '/img/checkmark';
+    document.getElementById("checkmark_image_funds").style.visibility = 'visible'
+
+    if( !isTransactionNumberValid(miningData) ){
+        return invalidateTransaction(miningData, "Number is not valid", "checkmark_image_num");
+    }
+    document.getElementById("checkmark_image_num").src = '/img/checkmark';
+    document.getElementById("checkmark_image_num").style.visibility = 'visible'
+
+    if( !isTransactionSignatureValid(miningData) ){
+        return invalidateTransaction(miningData, "Signature is not valid", "checkmark_image_sig");
+    }
+    document.getElementById("checkmark_image_sig").src = '/img/checkmark';
+    document.getElementById("checkmark_image_sig").style.visibility = 'visible'
+
+    socket.emit('mined-block', {
+            
+    });
+    removeTransaction(miningData);
+
+    document.getElementById("mine_submit_button").disabled = false;
+    document.getElementById("mine_message").innerText = "Success !";
+    document.getElementById("mine_message").style.color = "#696969";
+
+    // alert("Mining Sucessful!");
+}
+
+//IMPLEMENT
+function isTransactionFundValid(data){
+    if( !publicKeys.has(data.from) ) return false;
+    return true;
+}
+
+//IMPLEMENT
+function isTransactionNumberValid(data){
+    return true;
+}
+
+function isTransactionSignatureValid(data){
+    return doesSignatureMatch(data, BigInt("0x"+data.signature), publicKeys.get(data.from));
+}
+
+function invalidateTransaction(data, message, img_id){
+    socket.emit('invalid-transaction', data);
+    document.getElementById("mine_message").style.color = "#ff4444";
+    document.getElementById("mine_message").innerText = message;
+    document.getElementById(img_id).src = '/img/crossmark';
+    document.getElementById(img_id).style.visibility = 'visible'
+    document.getElementById("mine_submit_button").value = "Go Back";
+    document.getElementById("mine_submit_button").disabled = false;
+    removeTransaction(data);
 }
 
 function closeMining(){
@@ -149,15 +210,9 @@ function closeMining(){
     //reset everything else here
 }
 
-function submitMining(){
-    alert("submitted mining")
-}
+function removeTransaction(data){
+    const i = getIndexOfTransaction(data);
 
-function isTransactionValid(data){
-    return data.amount <= 200.00;
-}
-
-function removeTransaction(i){
     pendingTransaction = pendingTransaction.slice(0, i).concat( pendingTransaction.slice(i + 1, pendingTransaction.length))
     document.getElementById('pendingList').innerHTML = "";
 
@@ -177,8 +232,6 @@ function submitTransaction() {
     }
     socket.emit('new-transaction', message);
 }
-
-
 
 // returns bitlength of bigint
 function bitLength (a) {  
@@ -376,6 +429,7 @@ function getTransactionFromNum(transaction){
 }   
 
 function doesSignatureMatch(transaction, signature, publicKey){
-    const ver = modPow(signature, publicKey.d, publicKey.n);
+
+    const ver = modPow(signature, publicKey.e, publicKey.n);
     return (ver == getTransactionHex(transaction)%publicKey.n);
 }

@@ -88,11 +88,9 @@ function isMillerRabinPassed(mrc){
 }
     
 // returns 
-function getPrime(bits, elem=null){
+function getPrime(bits){
     while(true){
         let prime_candidate = getLowLevelPrime( BigInt(bits) )
-        if(elem != null)
-            elem.value = prime_candidate.toString(16);
 
         if (isMillerRabinPassed(prime_candidate))
             return prime_candidate;
@@ -194,11 +192,14 @@ function modInv (a, b) {
 }
 
 // generates a pk/sk pair in the form {private: {d, n}, public: {e, n}}
-async function getKeyPair( primeBits = 512){
+function getKeyPair( primeBits = 512){
     // get 2 large prime numbers
-    const p = getPrime(primeBits, document.getElementById("p"));
-    const q = getPrime(primeBits, document.getElementById("q"));
+    const p = getPrime(primeBits);
+    document.getElementById("p").value = p.toString(16);
 
+    const q = getPrime(primeBits);
+    document.getElementById("q").value = q.toString(16);
+    
     // n's only prime decomposition is p*q
     const n = p * q;
     document.getElementById("n").value = n.toString(16);
