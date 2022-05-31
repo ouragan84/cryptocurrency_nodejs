@@ -62,10 +62,10 @@ socket.on('new-transaction', (data) => {
     }
 
     //keep newest if other have same number
-    pendingTransaction.forEach(element => {
-        if(element.from == data.from && parseInt(element.number) == parseInt(data.number)){
-            socket.emit('invalid-transaction', element);
-            removeTransaction(element);
+    pendingTransaction.forEach(t => {
+        if(t.from == data.from && parseInt(t.number) == parseInt(data.number)){
+            socket.emit('invalid-transaction', t);
+            removeTransaction(t);
         }
     });
 
@@ -76,17 +76,20 @@ socket.on('new-transaction', (data) => {
 // IMPLEMENT
 socket.on('invalid-transaction', (data) => {
 
+    console.log("got invalid");
+
     let numNext = verificationMap.get(data.from).nextNum;
     let funds = verificationMap.get(data.from).funds;
 
-    if(parseInt(data.number) < numNext || parseFloat(data.amount) < funds){
+    if(parseInt(data.number) < numNext || parseFloat(data.amount) > funds){
+
         console.log("a transaction has been deemed invalid by someone else")
+        removeTransaction(data);
 
         if(window.name == data.from){
+            updateFormNumberAndInvalidateMyWrongNumberTransactions();
             alert("One of your transactions has been invalidated")
         }
-
-        removeTransaction(data);
         return;
     }
 })
@@ -167,8 +170,9 @@ function updateToBlockChain(bc, verification){
     pendingTransaction.forEach(t => {
         if(t.number < verificationMap.get(t.from).nextNum){
             removeTransaction(t);
-        }else if(t.amount > verificationMap.get(t.from).funds){
-            emoveTransaction(t);
+        }
+        else if(t.amount > verificationMap.get(t.from).funds){
+            removeTransaction(t);
             socket.emit('invalid-transaction', t);
         }
     });
@@ -179,6 +183,9 @@ function updateToBlockChain(bc, verification){
 
     document.getElementById("funds").innerText = verificationMap.get(window.name).funds.toFixed(2);
     updateFormNumberAndInvalidateMyWrongNumberTransactions();
+
+    var objDiv = document.getElementById("block_chain");
+    objDiv.scrollLeft = objDiv.scrollWidth;
 }
 
 function addUser(user){
@@ -486,15 +493,16 @@ function verifyHash(data){
 }
 
 function invalidateTransaction(data, message, img_id, remove=true){
-    socket.emit('invalid-transaction', data);
     document.getElementById("mine_message").style.color = "#ff4444";
     document.getElementById("mine_message").innerText = message;
     document.getElementById(img_id).src = '/img/crossmark';
     document.getElementById(img_id).style.visibility = 'visible'
     document.getElementById("mine_submit_button").value = "Go Back";
     document.getElementById("mine_submit_button").disabled = false;
-    if(remove)
+    if(remove){
         removeTransaction(data);
+        socket.emit('invalid-transaction', data);
+    }
         
     updateFormNumberAndInvalidateMyWrongNumberTransactions();
 }
