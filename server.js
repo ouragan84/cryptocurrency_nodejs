@@ -2,6 +2,8 @@ if(process.env.NODE_ENV !== 'production'){
     require('dotenv').config();
 }
 
+const url = 'http://localhost:8090'
+
 const express = require('express')
 const app = express()
 const bcrypt = require('bcrypt');
@@ -84,7 +86,7 @@ app.get('/dashboard', checkAuthenticated, (req, res) => {
     if(req.user.keys == null){
         return res.redirect('/keygen');
     }
-    res.render(path.join(__dirname, '/public','/dashboard','/index.html'), {name: req.user.name, n: req.user.keys.private.n, d: req.user.keys.private.d, e: req.user.keys.public.e });
+    res.render(path.join(__dirname, '/public','/dashboard','/index.html'), {name: req.user.name, url: url, n: req.user.keys.private.n, d: req.user.keys.private.d, e: req.user.keys.public.e });
 })
 
 app.get('/login', checkNotAuthenticated, (req, res) => {

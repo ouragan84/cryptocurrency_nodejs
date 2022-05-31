@@ -1,5 +1,5 @@
-const url = 'http://localhost:8090';
-const socket = io(url)
+// const window.url = 'http://localhost:8090';
+const socket = io(window.url)
 let pendingTransaction = [];
 let blockChain = [];
 let publicKeys = new Map();
@@ -47,7 +47,7 @@ function startUp(){
 function httpGet(endPoint)
 {
     var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open( "GET", url+endPoint, false ); // false for synchronous request
+    xmlHttp.open( "GET", window.url+endPoint, false ); // false for synchronous request
     xmlHttp.send( null );
     return xmlHttp.responseText;
 }
@@ -601,7 +601,7 @@ function minedBlockSucess(miningData, hash, nonce){
 
         const data = {blockChain: blockChain};
 
-        fetch( url+'/blockchain', {
+        fetch( window.url+'/blockchain', {
             method: "POST",
             headers: {'Content-Type': 'application/json'}, 
             body: JSON.stringify(data)
