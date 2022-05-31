@@ -184,8 +184,19 @@ function updateToBlockChain(bc, verification){
     document.getElementById("funds").innerText = verificationMap.get(window.name).funds.toFixed(2);
     updateFormNumberAndInvalidateMyWrongNumberTransactions();
 
+    scrollToEndOfBC();
+}
+
+function scrollToEndOfBC(){
     var objDiv = document.getElementById("block_chain");
-    objDiv.scrollLeft = objDiv.scrollWidth;
+
+    // console.log(1.0 * objDiv.scrollLeft / objDiv.scrollWidth)
+
+    setTimeout(() => {
+        objDiv.scrollTo({top: 0,
+            left: objDiv.scrollWidth,
+            behavior: 'smooth'});
+    }, 200);  
 }
 
 function addUser(user){
@@ -599,6 +610,8 @@ function minedBlockSucess(miningData, hash, nonce){
           });
 
         removeTransaction(miningData);  //do I wanna do that ???? I think so...
+
+        scrollToEndOfBC();
 
     }, "10")
 }
