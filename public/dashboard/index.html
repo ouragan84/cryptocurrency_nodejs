@@ -28,7 +28,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <link rel="stylesheet" href="/dashboard/style">
     <link rel="icon" href="/img/coin">
-    <title>Chunk Coin</title>
+    <title>Chungus Coin</title>
 </head>
 <body>
 
@@ -42,12 +42,12 @@
             <div class="miningVerification">
                 <h3 class="miningVerificationTitle">Transaction Verification</h3>
                 <div class="miningVerificationStep">
-                    <p class="miningVerificationStepText"> - User has funds: </p>
-                    <img class="checkmarkImage" src="/img/checkmark" id="checkmark_image_funds">
-                </div>
-                <div class="miningVerificationStep">
                     <p class="miningVerificationStepText"> - Number is correct: </p>
                     <img class="checkmarkImage" src="/img/checkmark" id="checkmark_image_num">
+                </div>
+                <div class="miningVerificationStep">
+                    <p class="miningVerificationStepText"> - User has funds: </p>
+                    <img class="checkmarkImage" src="/img/checkmark" id="checkmark_image_funds">
                 </div>
                 <div class="miningVerificationStep">
                     <p class="miningVerificationStepText"> - Signature is valid:</p>
@@ -129,17 +129,17 @@
         <img class="logo" src="/img/coin">
 
         <div class="mineInfo">
-            <h2 class="title">Miners get 10.00 coins <br> per block</h2>
+            <h3 class="title">Everyone starts with 200.00 <br> Miners get 10.00 per block</h3>
         </div>
 
         <div class="pagetitle">
-            <h1 class="title">CHUNK COIN</h1>
+            <h1 class="title">CHUNGUS COIN</h1>
             <h2 class="title">A blockchain simulator</h2>
         </div>
         
         <div>
             <h2 class="money">Hi <%= name %>! You currently have:</h2>
-            <h1 class="money">200.00</h1>
+            <h1 class="money" id="funds">200.00</h1>
         </div>
 
         <a href="https://github.com/ouragan84" class="gitlogo" target="_blank">
@@ -268,7 +268,7 @@
                     </div>
                     <div class="formProperty">
                         <label class="formInlineLabel">Number:</label> 
-                        <input class="formInlineField" type="text" value="10" id="mt_number_field" readonly>
+                        <input class="formInlineField" type="text" value="0" id="mt_number_field" readonly>
                     </div>
                     <hr class="new">
                     <div class="formProperty">

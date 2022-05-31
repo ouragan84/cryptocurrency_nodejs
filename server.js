@@ -10,18 +10,16 @@ const passport = require('passport');
 const flash = require('express-flash');
 const session = require('express-session');
 const methodOverride = require('method-override')
+const storage = require('node-persist');
+var bodyParser = require('body-parser');
 
 const initializePassport = require('./passport-config');
 const { throws } = require('assert');
 const { error } = require('console');
-initializePassport(
-    passport, 
-    name => users.find(user => user.name === name),
-    id => users.find(user => user.id === id)
-)
 
-// will want to use DB here instead
-const users = [];
+var users = [];
+var transactions = [];
+intitializeStroage();
 
 app.engine('html', require('ejs').renderFile);
 app.set('view engine', 'html');
@@ -36,6 +34,47 @@ app.use(session({
 app.use(passport.initialize())
 app.use(passport.session())
 app.use(methodOverride('_method'))
+app.use(bodyParser.json());   
+
+
+async function intitializeStroage(){
+    await storage.init({
+        dir: 'persist',
+     
+        stringify: JSON.stringify,
+     
+        parse: JSON.parse,
+     
+        encoding: 'utf8',
+     
+        logging: false,  // can also be custom logging function
+     
+        ttl: false, // ttl* [NEW], can be true for 24h default or a number in MILLISECONDS or a valid Javascript Date object
+     
+        expiredInterval: 2 * 60 * 1000, // every 2 minutes the process will clean-up the expired cache
+     
+        // in some cases, you (or some other service) might add non-valid storage files to your
+        // storage dir, i.e. Google Drive, make this true if you'd like to ignore these files and not throw an error
+        forgiveParseErrors: false
+     
+    });
+
+    if(await storage.getItem('users') == null){
+        await storage.setItem('users',[]);
+    }
+    // if(await storage.getItem('transactions') == null){
+    //     await storage.setItem('transactions',[]);
+    // }
+
+    users = await storage.getItem('users');
+    // transactions = await storage.getItem('transactions');
+
+    initializePassport(
+        passport, 
+        name => users.find(user => user.name === name),
+        id => users.find(user => user.id === id)
+    )
+}
 
 app.get('/', checkAuthenticated, (req, res) => {
     res.redirect('/dashboard');
@@ -84,9 +123,13 @@ app.post('/register', checkNotAuthenticated, async (req, res) => {
             id: Date.now().toString(),
             name: req.body.name,
             password: hashedPassword,
-            keys:null
+            keys:null,
+            blockChain:[]
         };
+
         users.push(user);
+        await storage.setItem("users", users);
+
         req.login(user, function(err) {
             if (err) {
               console.log(err);
@@ -122,6 +165,36 @@ app.get('/keygen', checkAuthenticated, (req, res) => {
     res.render(path.join(__dirname, '/public','/keygen','/index.html'), {name: req.user.name});
 })
 
+// deal with that problem(if we're not there we wanna get best blockchain but the longest is possibly bad)
+app.get('/blockchain', checkAuthenticated, (req, res) => {
+    var blockChains = [];
+    users.forEach(user => {
+        blockChains.push(user.blockChain);
+    });
+    res.send(blockChains)
+})
+
+app.get('/transactions', checkAuthenticated, (req, res) => {
+    res.send(transactions);
+})
+
+app.post('/blockchain', checkAuthenticated, async (req, res) => {
+    console.log("got something " + req.body + " thingy? " +  req.body.blockChain);
+    req.user.blockChain = req.body.blockChain;
+    io.emit('update-blockchain', {blockChain: getLongestBlockChain()});
+    await storage.setItem("users", users);
+});
+
+function getLongestBlockChain(){
+    var max = 0;
+    for(let i = 0; i < users.length; i++){
+        if(users[i].blockChain.length > users[max].blockChain.length){
+            max = i;
+        }
+    }
+    return users[max].blockChain;
+}
+
 app.post('/keygen', checkAuthenticated, async (req, res) => {
     if(req.user.keys == null){
         req.user.keys = {
@@ -138,8 +211,8 @@ app.post('/keygen', checkAuthenticated, async (req, res) => {
             name: req.user.name,
             key: req.user.keys.public
         });
+        await storage.setItem("users", users);
     }
-    console.log(users);
     return res.redirect('/dashboard');
 })
 
@@ -230,18 +303,12 @@ io.on('connection', (socket) => {
     console.log("USER CONNECTED", socket.id);
 
     socket.on('new-transaction', (data) => {
-        socket.emit('new-transaction', data);
+        transactions.push(data)
         socket.broadcast.emit('new-transaction', data);
     })
 
-    
     socket.on('invalid-transaction', (data) => {
         socket.broadcast.emit('invalid-transaction', data);
-    })
-
-    socket.on('mined-block', (data) => {
-        socket.emit('mined-block', data);
-        socket.broadcast.emit('mined-block', data);
     })
 })
 

@@ -4,6 +4,7 @@ let pendingTransaction = [];
 let blockChain = [];
 let publicKeys = new Map();
 let isMining = false;
+let verificationMap = new Map();
 
 startUp();
 
@@ -15,10 +16,32 @@ function startUp(){
     for(let i = 0; i < p.length; i++){
         addUser(p[i]);
     }
-    updateSignature();
+    
+    pendingTransaction = JSON.parse(httpGet('/transactions'));
+    document.getElementById('pendingList').innerHTML = "";
+    for(let j = 0; j < pendingTransaction.length; j++){
+        addTransaction(pendingTransaction[j], j);
+    }
+    
+    const allBlockChains = JSON.parse(httpGet('/blockchain'));
+    var longestBC = null;
+    var longestVerification;
 
-    SHA160(BigInt("0x000000000000000000000000000123"));
-    SHA160(BigInt("0x000000000000000000000000000124"));
+    allBlockChains.forEach(bc => {
+        if(longestBC == null || bc.length > longestBC.length){
+            const v = verifyAndUpdateBlockChain(bc);
+            if(v.isValid){
+                longestVerification = v.verification;
+                longestBC = bc;
+            }
+        } 
+    });
+
+    updateToBlockChain(longestBC, longestVerification);
+
+    
+
+    updateSignature();
 }
 
 function httpGet(endPoint)
@@ -30,37 +53,133 @@ function httpGet(endPoint)
 }
 
 socket.on('new-transaction', (data) => {
+    let numNext = verificationMap.get(data.from).nextNum;
+
+    if(parseInt(data.number) < numNext){
+        socket.emit('invalid-transaction', data);
+        removeTransaction(data);
+        return;
+    }
+
+    //keep newest if other have same number
+    pendingTransaction.forEach(element => {
+        if(element.from == data.from && parseInt(element.number) == parseInt(data.number)){
+            socket.emit('invalid-transaction', element);
+            removeTransaction(element);
+        }
+    });
+
     addTransaction(data, pendingTransaction.length);
     pendingTransaction.push(data);
 })
 
+// IMPLEMENT
 socket.on('invalid-transaction', (data) => {
-    if(isTransactionFundValid(data) && isTransactionNumberValid(data) && isTransactionSignatureValid(data)) return;
 
-    if(data.from == window.name)
-        alert("One of your transaction has been invalidated");
+    let numNext = verificationMap.get(data.from).nextNum;
+    let funds = verificationMap.get(data.from).funds;
 
-    removeTransaction(data);
+    if(parseInt(data.number) < numNext || parseFloat(data.amount) < funds){
+        console.log("a transaction has been deemed invalid by someone else")
+
+        if(window.name == data.from){
+            alert("One of your transactions has been invalidated")
+        }
+
+        removeTransaction(data);
+        return;
+    }
 })
 
-//IMPLEMENT
-socket.on('mined-block', (data) => {
-    // alert("got new block");
-
-    if(!verifyTransactionFund(data) || !verifyTransactionNumber(data) || !verifyTransactionSignature(data) || !verifyPrevious(data, blockChain.length) || !verifyHash(data))
-    {
-        console.log("recieved transaction did not pass one of the tests")
-    }
-
-    removeTransaction(data);
-    addBlock(data, blockChain.length);
-    blockChain.push(data)
+socket.on('update-blockchain', (data) => {
+    
+    if(data.blockChain.length > blockChain.length){
+        const v = verifyAndUpdateBlockChain(data.blockChain);
+        if(v.isValid)
+            updateToBlockChain(data.blockChain, v.verification);
+    }      
 
 })
 
 socket.on('new-user', (data) => {
     addUser(data);
+    verificationMap.set(data.name, {nextNum: 0, funds: 200})
+    console.log("new user registered");
 })
+
+function verifyAndUpdateBlockChain(bc){
+    let verification = new Map();
+
+    publicKeys.forEach((value, key, map) => {
+        verification.set(key, {funds:200, nextNum:0})
+    });
+
+    console.log("verification map: ", verification);
+
+    for(let i = 0; i < bc.length; ++i){
+        if(i > 0 && BigInt("0x"+bc[i].previous) != BigInt("0x"+ bc[i-1].hash)){
+            // console.log("prev != prev hash so hell nah")
+            return {isValid: false, verification:null}; //prev != prev hash so hell nah
+        }
+
+        if(BigInt("0x"+bc[i].hash) != SHA160(getBlockHex(bc[i]).h)){
+            // console.log("prev != prev hash so hell nah")
+            return {isValid: false, verification:null}; // hash not the same, hell nah
+        }
+            
+        if(verification.get(bc[i].from) == null){
+            // console.log("user " +  bc[i].from + " don't exist, bad blockchain")
+            return {isValid: false, verification:null}; //user don't exist, bad blockchain
+        }
+            
+        if(parseInt(bc[i].number) != verification.get(bc[i].from).nextNum){
+            // console.log("bad number = bad blockchain")
+            return {isValid: false, verification:null}; // bad number = bad blockchain
+        }else
+            verification.get(bc[i].from).nextNum ++;
+
+        verification.get(bc[i].to).funds += parseFloat(bc[i].amount);
+
+        if(parseInt(bc[i].amount) > verification.get(bc[i].from).funds){
+            // console.log("overdrawn = bad blockchain")
+            return {isValid: false, verification:null}; //overdrawn = bad blockchain
+        }else
+            verification.get(bc[i].from).funds -= parseFloat(bc[i].amount)
+        
+
+        verification.get(bc[i].miner).funds += 10;
+
+        // console.log("verification map: ", verification);
+    }
+
+    return {isValid: true, verification:verification}
+}
+
+function updateToBlockChain(bc, verification){
+    document.getElementById("block_chain").innerHTML = "";
+    blockChain = [];
+    bc.forEach(element => {
+        addBlock(element)
+    });
+
+    verificationMap = verification;
+
+    pendingTransaction.forEach(t => {
+        if(t.number < verificationMap.get(t.from).nextNum){
+            removeTransaction(t);
+        }else if(t.amount > verificationMap.get(t.from).funds){
+            emoveTransaction(t);
+            socket.emit('invalid-transaction', t);
+        }
+    });
+
+    verificationMap.forEach((value, key, map) => {
+        deleteTransactionsWithNumUnder(key, value.nextNum);//implement
+    });
+
+    document.getElementById("funds").innerText = verificationMap.get(window.name).funds.toFixed(2);
+    updateFormNumberAndInvalidateMyWrongNumberTransactions();
+}
 
 function addUser(user){
     if(publicKeys.get(user.name) != null) return;
@@ -72,22 +191,83 @@ function addUser(user){
             n:BigInt("0x"+user.key.n)
         }
     )
+
     console.log(publicKeys)
 }
 
-function getIndexOfTransaction(data){
+function updateFormNumberAndInvalidateMyWrongNumberTransactions(){
+
+    let numNext = verificationMap.get(window.name).nextNum;
+    let funds = verificationMap.get(window.name).funds;
+    
+    // console.log("current num and funds", numNext, funds)
+
+    let myPendingTransactions = [];
+    let deleting = false;
+
+    pendingTransaction.forEach(t => {
+        if(t.from == window.name){
+            // console.log(parseInt(t.number));
+            if(parseInt(t.number) < numNext){ // || parseFloat(element.amount) > funds
+                deleting = true;
+                socket.emit('invalid-transaction', t);
+                removeTransaction(t);
+            }else{
+                myPendingTransactions.push(t);
+            }
+        }
+    });
+
+    myPendingTransactions.sort(function(a, b) {
+        return  parseInt(a.number) - parseInt(b.number);
+      });
+
+    for(let i = 0; i < myPendingTransactions.length; i++){
+        if(parseInt(myPendingTransactions[i].number) == numNext){
+            numNext++;
+            continue;
+        }
+    }
+
+    document.getElementById("mt_number_field").value = numNext;
+    // verificationMap.get(window.name).nextNum = numNext;
+
+    if(deleting){
+        alert("Some of your old transaction were invalid and were deleted")
+    }
+
+}
+
+function deleteTransactionsWithNumUnder(user, num){
+    pendingTransaction.forEach(t => {
+        if(t.from == user && t.number < num){
+            removeTransaction(t)
+        }
+    });
+}
+
+function removeTransaction(data){
+    console.log("called to remove transaction")
+
     for(let j = 0; j < pendingTransaction.length; j++){
         if(data.from == pendingTransaction[j].from
             && data.to == pendingTransaction[j].to
             && data.amount == pendingTransaction[j].amount
             && data.number == pendingTransaction[j].number
             && data.signature == pendingTransaction[j].signature)
-            return j
+        { // 0 1 2 3 4 |5| 6 7     len=8
+            pendingTransaction = pendingTransaction.slice(0, j).concat( pendingTransaction.slice(j + 1, pendingTransaction.length) )
+        }
     }
-    return -1;
+
+    document.getElementById('pendingList').innerHTML = "";
+    for(let j = 0; j < pendingTransaction.length; j++){
+        addTransaction(pendingTransaction[j], j);
+    }
 }
 
 function addTransaction(data, i){
+
     document.getElementById('pendingList').innerHTML +=
     "<div class=\"pendingTrans\">" + 
         "<div class=\"transactionInfos\">     "+
@@ -125,10 +305,11 @@ function addTransaction(data, i){
     "</div>";
 }
 
-function addBlock(data, i){
+function addBlock(data){
+    var doc = document.getElementById('block_chain');
 
-    document.getElementById('block_chain').innerHTML += 
-    (i > 0? " <img src=\"/img/arrow\" class=\"arrow\"/>": "") + 
+    doc.innerHTML += 
+    (blockChain.length > 0? " <img src=\"/img/arrow\" class=\"arrow\"/>": "") + 
 
    " <div class=\"block\">    " +
    "         <div class=\"blockProperty\">    " +
@@ -182,6 +363,8 @@ function addBlock(data, i){
    "             <input class=\"inlineField\" type=\"text\" value=\"" + data.hash + "\" readonly>    " +
    "         </div>    " +
    "     </div>    ";
+
+   blockChain.push(data);
 } 
 
 function updateSignature(){
@@ -189,7 +372,7 @@ function updateSignature(){
         from: document.getElementById("mt_from_field").value,
         to: document.getElementById("mt_to_field").value,
         amount: document.getElementById("mt_amount_field").value,
-        number: document.getElementById("mt_number_field").value,
+        number: document.getElementById("mt_number_field").value
     }
 
     const sig = signTransaction(transaction, window.keys.private);
@@ -199,11 +382,13 @@ function updateSignature(){
 
 function mineTransaction(i){
     let miningData = pendingTransaction[i]
+    miningData.previous = (blockChain.length > 0? blockChain[blockChain.length-1].hash : "0000");
+
     document.getElementById("mine_submit_button").disabled = true;
     document.getElementById("mine_submit_button").value = "Next";
     document.getElementById("mine_message").innerText = "";
 
-    document.getElementById("mine_previous_field").value = "xxxxx"; // do that
+    document.getElementById("mine_previous_field").value =  miningData.previous;// do that
     document.getElementById("mine_from_field").value = miningData.from;
     document.getElementById("mine_to_field").value = miningData.to;
     document.getElementById("mine_amount_field").value = miningData.amount;
@@ -222,25 +407,22 @@ function mineTransaction(i){
     isMining = true;
 
     setTimeout(() => {
-        if(isTransactionFundValid(miningData))
+        if(isTransactionNumberValid(miningData))
             setTimeout(() => {
-                if(isTransactionNumberValid(miningData))
+                if(isTransactionFundValid(miningData))
                     setTimeout(() => {
                         if(isTransactionSignatureValid(miningData))
                             setTimeout(() => {
-                                tryHashes(0, {
-                                    previous: "a1b1c1",
-                                    miningData
-                                }, 
+                                tryHashes(0, miningData, 
                                     getBlockHex({
-                                        previous: "a1b1c1",
+                                        miner: window.name,
+                                        nonce: 0,
+                                        previous: miningData.previous,
                                         from: miningData.from,
                                         to: miningData.to,
                                         amount: miningData.amount,
                                         number: miningData.number,
                                         signature: miningData.signature,
-                                        miner: window.name,
-                                        nonce: 0
                                     }
                                 ));
                             }, "0")
@@ -252,7 +434,7 @@ function mineTransaction(i){
 
 function isTransactionFundValid(data){    
     if(!verifyTransactionFund(data) ){
-        invalidateTransaction(miningData, "Funds are not valid (We don't want to waste time mining a block that we know is invalid)", "checkmark_image_funds");
+        invalidateTransaction(data, "Funds are not valid (We don't want to waste time mining a block that we know is invalid)", "checkmark_image_funds");
         return false;
     }
     document.getElementById("checkmark_image_funds").src = '/img/checkmark';
@@ -260,25 +442,25 @@ function isTransactionFundValid(data){
     return true;
 }
 
-//IMPLEMENT
 function verifyTransactionFund(data){
     if( !publicKeys.has(data.from)) return false;
-    return true;
+
+    return verificationMap.get(data.from).funds >= parseFloat(data.amount);
 }
 
 function isTransactionNumberValid(data){
-    if( !verifyTransactionNumber(data) ){
-        invalidateTransaction(data, "Number is not valid  (We don't want to waste time mining a block that we know is invalid)", "checkmark_image_num");
-        return false;
+    const numberValidity =  parseInt(data.number) - verificationMap.get(data.from).nextNum; 
+    if( numberValidity >= 0 ){
+        if(numberValidity == 0){
+            document.getElementById("checkmark_image_num").src = '/img/checkmark';
+            document.getElementById("checkmark_image_num").style.visibility = 'visible'
+            return true;
+        }
+        invalidateTransaction(data, "Number is over the one we should expect, but keep transaction in case multiple are pending by the user", "checkmark_image_num", false);
+    }else{
+        invalidateTransaction(data, "Number is already in block chain or user does not exist", "checkmark_image_num", true);
     }
-    document.getElementById("checkmark_image_num").src = '/img/checkmark';
-    document.getElementById("checkmark_image_num").style.visibility = 'visible'
-    return true;
-}
-
-//IMPLEMENT
-function verifyTransactionNumber(data){
-    return true;
+    return false;
 }
 
 function isTransactionSignatureValid(data){
@@ -303,7 +485,7 @@ function verifyHash(data){
     return true;
 }
 
-function invalidateTransaction(data, message, img_id){
+function invalidateTransaction(data, message, img_id, remove=true){
     socket.emit('invalid-transaction', data);
     document.getElementById("mine_message").style.color = "#ff4444";
     document.getElementById("mine_message").innerText = message;
@@ -311,15 +493,26 @@ function invalidateTransaction(data, message, img_id){
     document.getElementById(img_id).style.visibility = 'visible'
     document.getElementById("mine_submit_button").value = "Go Back";
     document.getElementById("mine_submit_button").disabled = false;
-    removeTransaction(data);
+    if(remove)
+        removeTransaction(data);
+        
+    updateFormNumberAndInvalidateMyWrongNumberTransactions();
 }
 
-const zeroBits = 4n;
+const zeroBits = 12n;
 const shaBits = 160n;
-const incrementRender = 1;
+const incrementRender = 100;
 const nonceL = 64n;
 
 function tryHashes(i, miningData, blockHex){
+
+    if(blockChain.length > 0 && blockChain[blockChain.length-1].hash != miningData.previous){
+        document.getElementById("mine_submit_button").disabled = false;
+        document.getElementById("mine_message").innerText = "Recieved a longer blockchain and \"previous\" does not match anymore";
+        document.getElementById("mine_submit_button").value = "Go Back";
+        document.getElementById("mine_message").style.color = "#ff4444";
+        isMining = false;
+    }
 
     if(!isMining) return;
 
@@ -329,32 +522,13 @@ function tryHashes(i, miningData, blockHex){
 
     while( j < i + incrementRender ){
 
-        console.log(bigIntGetStrNBits(blockHex.h, blockHex.n))
+        // console.log(bigIntGetStrNBits(blockHex.h, blockHex.n))
         hash = SHA160(blockHex.h);
         // actually want to try hash  bigIntGetStrNBits
         if( hash < 2n ** (shaBits - zeroBits)){
             
-            document.getElementById("mine_nonce_field").value = j
-            document.getElementById("mine_hash_field").value = bigIntGetStrNBits(hash, shaBits)
-            document.getElementById("mine_submit_button").disabled = false;
-            document.getElementById("mine_message").innerText = "Success! Sent out the block to everyone else";
-            document.getElementById("mine_message").style.color = "#16702e";
-
-            setTimeout(() => {
-                socket.emit('mined-block', {
-                        previous: miningData.previous,
-                        from: miningData.from,
-                        to: miningData.to,
-                        amount: miningData.amount,
-                        number: miningData.number,
-                        signature: miningData.signature,
-                        miner: window.name,
-                        nonce: j,
-                        hash: bigIntGetStrNBits(hash, shaBits)
-                });
-                removeTransaction(miningData);
-            }, "10")
-
+            minedBlockSucess(miningData, hash, j);
+            isMining = false;
             return;
         }
 
@@ -367,8 +541,58 @@ function tryHashes(i, miningData, blockHex){
 
     setTimeout(() => {
         tryHashes(j, miningData, blockHex);
-    }, "3000")
+    }, "0")
     
+}
+
+function minedBlockSucess(miningData, hash, nonce){
+    console.log("mined with success");
+
+    document.getElementById("mine_nonce_field").value = nonce
+    document.getElementById("mine_hash_field").value = bigIntGetStrNBits(hash, shaBits)
+    document.getElementById("mine_submit_button").disabled = false;
+    document.getElementById("mine_message").innerText = "Success! Sent out the updated blockchain to everyone";
+    document.getElementById("mine_message").style.color = "#16702e";
+
+
+    var newBlock = miningData;
+    newBlock.miner = window.name;
+    newBlock.nonce = nonce;
+    newBlock.hash = bigIntGetStrNBits(hash, shaBits);
+
+    if(newBlock.to == window.name){
+        document.getElementById("funds").innerText = (parseFloat(document.getElementById("funds").innerText) + 
+            parseFloat(newBlock.amount)).toFixed(2) ;
+    }
+    if(newBlock.miner == window.name){
+        document.getElementById("funds").innerText = (parseFloat(document.getElementById("funds").innerText) + 
+            10).toFixed(2) ;
+    }
+    if(newBlock.from == window.name){
+        document.getElementById("funds").innerText = (parseFloat(document.getElementById("funds").innerText) - 
+            parseFloat(newBlock.amount)).toFixed(2) ;
+    }
+
+    
+    addBlock(newBlock);
+    verificationMap.get(newBlock.from).nextNum++;
+    verificationMap.get(newBlock.from).funds -= parseFloat(newBlock.amount);    
+
+    setTimeout(() => {
+
+        const data = {blockChain: blockChain};
+
+        fetch( url+'/blockchain', {
+            method: "POST",
+            headers: {'Content-Type': 'application/json'}, 
+            body: JSON.stringify(data)
+          }).then(res => {
+            console.log("Request complete! response:", res);
+          });
+
+        removeTransaction(miningData);  //do I wanna do that ???? I think so...
+
+    }, "10")
 }
 
 function closeMining(){
@@ -380,18 +604,6 @@ function closeMining(){
     //reset everything else here
 }
 
-function removeTransaction(data){
-    const i = getIndexOfTransaction(data);
-
-    pendingTransaction = pendingTransaction.slice(0, i).concat( pendingTransaction.slice(i + 1, pendingTransaction.length))
-    document.getElementById('pendingList').innerHTML = "";
-
-    for(let j = 0; j < pendingTransaction.length; j++){
-        addTransaction(pendingTransaction[j], j);
-    }
-
-}
-
 function submitTransaction() {
     const message = {
         from: document.getElementById("mt_from_field").value,
@@ -400,10 +612,17 @@ function submitTransaction() {
         number: document.getElementById("mt_number_field").value,
         signature: document.getElementById("mt_signature_field").value
     }
+
     socket.emit('new-transaction', message);
+
+    addTransaction(message, pendingTransaction.length);
+    pendingTransaction.push(message);
+
+    updateFormNumberAndInvalidateMyWrongNumberTransactions();
+    updateSignature();
+
+    return;
 }
-
-
 
 // returns bitlength of bigint
 function bitLength (a) {  
@@ -466,19 +685,19 @@ function SHA160(message){
 
     const mlBeforePadding = BigInt( bitLength(message) );
 
-    console.log("mlBeforePadding", mlBeforePadding)
+    // console.log("mlBeforePadding", mlBeforePadding)
 
     const mlAfterPadding = BigInt( bitLength(message) );
 
-    console.log("mlAfterPadding", mlAfterPadding)
+    // console.log("mlAfterPadding", mlAfterPadding)
 
     let ml = mlAfterPadding - (mlAfterPadding + 64n)%512n + 512n;
 
-    console.log("ml", ml)
+    // console.log("ml", ml)
 
     let blocks = demcomposeToArr(message + mlBeforePadding * 2n** ml, bitsPerBlock, ml+64n);
 
-    console.log("blocks", blocks)
+    // console.log("blocks", blocks)
 
     // init
     let h0 = BigInt("0x67452301");
@@ -504,32 +723,39 @@ function SHA160(message){
             w.push(blocks[j*16+i]);
         }
         for(let i = 16; i < 80; i++){
-            w.push((w[i-3]^w[i-8]^w[i-14]^w[i-16]) << 1n);
+            w.push( BigInt.asUintN(32, (w[i-3]^w[i-8]^w[i-14]^w[i-16]) << 1n));
         }
+
+        // console.log("w", w)
 
         // shuffle bits arounds
         let f, k;
         for(let i = 0; i < 80; i++){
-            if( 0<= i < 20){
-                f = BigInt.asUintN(32, (b&c)|((~b)&c))
-                k = BigInt(0x5A827999);
-            }else if( 20<= i < 40){
+            // console.log("abcde", bigIntGetStrNBits(a, 32n), bigIntGetStrNBits(b, 32n), 
+            //     bigIntGetStrNBits(c, 32n), bigIntGetStrNBits(d, 32n), bigIntGetStrNBits(e, 32n))
+
+            if( 0 <= i && i < 20){
+                f = BigInt.asUintN(32, (b&c)|(BigInt.asUintN(32, ~a)&c))
+                k = BigInt("0x5A827999");
+            }else if( 20<= i && i < 40){
                 f = BigInt.asUintN(32, b^c^d)
-                k = BigInt(0x6ED9EBA1);
-            }else if( 40<= i < 60){
+                k = BigInt("0x6ED9EBA1");
+            }else if( 40<= i && i < 60){
                 f = BigInt.asUintN(32, (b&c)|(b&d)|(c&d))
-                k = BigInt(0x8F1BBCDC);
-            }else if( 60<= i < 80){
+                k = BigInt("0x8F1BBCDC");
+            }else if( 60<= i && i < 80){
                 f = BigInt.asUintN(32, b^c^d)
-                k = BigInt(0xCA62C1D6);
+                k = BigInt("0xCA62C1D6");
             }
 
-            let temp =  BigInt.asUintN(32, (a << 5n) + f + e + k + w[i]);
+            // console.log("ifk", i, bigIntGetStrNBits(f, 32n), bigIntGetStrNBits(k, 32n))
+
+            let temp =  BigInt.asUintN(32, leftrotate(a, 5n, 32) + f + e + k + w[i]);
             e = d;
             d = c;
-            c = BigInt.asUintN(32, b << 30n);
+            c = BigInt.asUintN(32, leftrotate(b, 30n, 32));
             b = a;
-            a = temp;
+            a = temp;            
         }
 
         // add chunk hash to result
@@ -539,15 +765,19 @@ function SHA160(message){
         h3 = BigInt.asUintN(32, h3 + d);
         h4 = BigInt.asUintN(32, h4 + e);
 
-        console.log("Hvals: ", bigIntGetStrNBits(h0, 32n), bigIntGetStrNBits(h1, 32n), 
-        bigIntGetStrNBits(h2, 32n), bigIntGetStrNBits(h3, 32n), bigIntGetStrNBits(h4, 32n))
-    }//bigIntGetStrNBits(hash, shaBits)
+        // console.log("Hvals: ", bigIntGetStrNBits(h0, 32n), bigIntGetStrNBits(h1, 32n), 
+        // bigIntGetStrNBits(h2, 32n), bigIntGetStrNBits(h3, 32n), bigIntGetStrNBits(h4, 32n))
+    }
 
 
-    console.log("Ending Hash: ", bigIntGetStrNBits(BigInt.asUintN(160, 
-        (h0 << 128n) | (h1 << 96n) | (h2 << 64n) | (h3 << 32n) | h4), 160n))
+    // console.log("Ending Hash: ", bigIntGetStrNBits(BigInt.asUintN(160, 
+    //     (h0 << 128n) | (h1 << 96n) | (h2 << 64n) | (h3 << 32n) | h4), 160n))
 
     return BigInt.asUintN(160, (h0 << 128n) | (h1 << 96n) | (h2 << 64n) | (h3 << 32n) | h4);
+}
+
+function leftrotate(a, b, bits){
+    return BigInt.asUintN(bits, BigInt.asUintN(bits, a << b) + BigInt.asUintN(bits, a >> (BigInt(bits) - b)));
 }
 
 function stringToNum(str, expectedLength){
@@ -580,7 +810,7 @@ function getBlockHex(rawBlock){
     const minerLength = 64 * 8;
     const nonceLength = 64;
 
-    let blockHex = BigInt.asUintN(prevLength, BigInt("0x"+rawBlock.previous))
+    let blockHex = BigInt.asUintN(prevLength, BigInt("0x"+rawBlock.previous));
 
     blockHex <<= BigInt(fromLength);
     blockHex += stringToNum(rawBlock.from, fromLength);
