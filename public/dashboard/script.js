@@ -520,7 +520,7 @@ function invalidateTransaction(data, message, img_id, remove=true){
 
 const zeroBits = 12n;
 const shaBits = 160n;
-const incrementRender = 100;
+const incrementRender = 99;
 const nonceL = 64n;
 
 function tryHashes(i, miningData, blockHex){
@@ -560,7 +560,7 @@ function tryHashes(i, miningData, blockHex){
 
     setTimeout(() => {
         tryHashes(j, miningData, blockHex);
-    }, "0")
+    }, "50")
     
 }
 
