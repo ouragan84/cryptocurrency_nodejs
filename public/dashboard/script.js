@@ -13,9 +13,14 @@ function startUp(){
     console.log("dashboard script loaded !");
     document.getElementById("mt_from_field").value = window.name;
     const p = JSON.parse(httpGet('/publickeys'));
+    var myID = 0;
     for(let i = 0; i < p.length; i++){
+        if(p[i].name == window.name)
+            myID = i;
         addUser(p[i]);
     }
+
+    document.getElementById("mt_to_field").value = p[(myID > 0? myID-1: p.length-1)].name;
     
     pendingTransaction = JSON.parse(httpGet('/transactions'));
     document.getElementById('pendingList').innerHTML = "";
@@ -520,8 +525,9 @@ function invalidateTransaction(data, message, img_id, remove=true){
 
 const zeroBits = 12n;
 const shaBits = 160n;
-const incrementRender = 99;
+const incrementRender = 123;
 const nonceL = 64n;
+const timewait = "10";
 
 function tryHashes(i, miningData, blockHex){
 
@@ -560,7 +566,7 @@ function tryHashes(i, miningData, blockHex){
 
     setTimeout(() => {
         tryHashes(j, miningData, blockHex);
-    }, "50")
+    }, timewait)
     
 }
 
