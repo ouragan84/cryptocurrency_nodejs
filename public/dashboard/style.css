@@ -1,16 +1,18 @@
 html, body {
     height: 100%;
     margin: 0;
+    background-color: beige;
+    overflow: hidden;
 }
 
 .banner {
     height:10%;
-    background-color: greenyellow;
+    background-color: rgb(255, 95, 95);
+    border-bottom: solid 1px black;
     display: flex;
     justify-content: space-around;
     flex-direction: row;
     align-items: center;
-    outline: 1px solid #000;
 }
 
 .logo {
@@ -52,7 +54,7 @@ h2.money{
 }
 
 .funds{
-    color: rgb(0, 36, 156);
+    color: rgb(79, 24, 110);
 }
 
 .gitlogo {
@@ -71,11 +73,9 @@ h2.money{
     /* min-width: min-content; */
 
     
-    background-color: blueviolet;
+    border-bottom: solid 1px black;
     display: flex;
     flex-direction: row;
-
-    outline: 1px solid #000;
 }
 
 .block {
@@ -89,6 +89,7 @@ h2.money{
     width: 220pt;
     border-radius: 8px;
     background-color: white;
+    border: solid 1px black;
     flex-wrap: nowrap;
 }
 
@@ -137,7 +138,8 @@ hr.new {
 .pendingTitle{
     height:8%;
     width: 100%;
-    background-color: red;
+    background-color: rgb(255, 95, 95);
+    border-bottom: solid 1px black;
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -165,7 +167,6 @@ h3.transTitle{
     justify-content: flex-start;
     align-items: center;
     
-    background-color: blue;
     display: flex;
     flex-wrap: wrap;
     align-content: flex-start;
@@ -183,6 +184,7 @@ h3.transTitle{
     width: 31%;
     border-radius: 8px;
     background-color: white;
+    border: 1px solid black;
     flex-wrap: nowrap;
 }
 
@@ -236,7 +238,8 @@ h3.transTitle{
     justify-content: center;
     align-items: center;
     text-align: center;
-    background-color: mediumseagreen;
+    background-color: rgb(255, 95, 95);
+    border-bottom: solid 1px black;
 }
 
 .makeTransactionContent{
@@ -252,8 +255,8 @@ h3.transTitle{
     
     display: flex;
     align-content: flex-start;
+    border-left: 1px solid black;
 
-    background-color: purple;
 }
 
 .makeTransactionForm{
@@ -266,6 +269,7 @@ h3.transTitle{
     justify-content: space-around;;
     border-radius: 8px;
     background-color: white;
+    border: 1px solid black;
     flex-wrap: nowrap;
 }
 
@@ -340,6 +344,7 @@ h3.transTitle{
     justify-content: stretch;
     border-radius: 8px;
     background-color: white;
+    /* border: 1px solid black; */
     flex-wrap: nowrap;
 }
 

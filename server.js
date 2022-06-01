@@ -149,7 +149,7 @@ app.post('/register', checkNotAuthenticated, async (req, res) => {
     
 })
 
-app.get('/publickeys', (req, res) => {
+app.get('/publickeys', checkAuthenticated, (req, res) => {
     const keys = [];
 
     users.forEach(user => {
