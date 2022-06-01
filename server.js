@@ -201,23 +201,35 @@ function getLongestBlockChain(){
 }
 
 app.post('/keygen', checkAuthenticated, async (req, res) => {
-    if(req.user.keys == null){
-        req.user.keys = {
-            public:{
-                e:req.body.e,
-                n:req.body.n
-            },
-            private:{
-                d:req.body.d,
-                n:req.body.n
-            }
-        }
-        io.emit('new-user', {
-            name: req.user.name,
-            key: req.user.keys.public
-        });
-        await storage.setItem("users", users);
+    if(req.user.keys != null) return res.redirect('/dashboard');
+
+    try {
+        if (BigInt("0x"+req.body.e) < 1n
+         || BigInt("0x"+req.body.d) < 1n
+         || BigInt("0x"+req.body.n) < 1n) 
+            throw 'Key is not valid';
+    } catch (error) {
+        req.user.keys = null;
+        return res.redirect('/keygen');
     }
+
+    req.user.keys = {
+        public:{
+            e:req.body.e,
+            n:req.body.n
+        },
+        private:{
+            d:req.body.d,
+            n:req.body.n
+        }
+    }
+    
+    io.emit('new-user', {
+        name: req.user.name,
+        key: req.user.keys.public
+    });
+    await storage.setItem("users", users);
+
     return res.redirect('/dashboard');
 })
 
@@ -289,6 +301,7 @@ app.delete('/logout', (req, res) => {
 })
 
 function checkAuthenticated(req, res, next) {
+    res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
     if(req.isAuthenticated()){
         return next();
     }
@@ -297,6 +310,7 @@ function checkAuthenticated(req, res, next) {
 }
 
 function checkNotAuthenticated(req, res, next) {
+    res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
     if(req.isAuthenticated()){
         return res.redirect('/dashboard'); 
     }

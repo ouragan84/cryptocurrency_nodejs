@@ -599,7 +599,13 @@ function minedBlockSucess(miningData, hash, nonce){
     
     addBlock(newBlock);
     verificationMap.get(newBlock.from).nextNum++;
-    verificationMap.get(newBlock.from).funds -= parseFloat(newBlock.amount);    
+    verificationMap.get(newBlock.from).funds -= parseFloat(newBlock.amount);
+    verificationMap.get(newBlock.to).funds += parseFloat(newBlock.amount); 
+    verificationMap.get(newBlock.miner).funds += 10; 
+
+    if(newBlock.to == window.name || newBlock.miner == window.name || newBlock.from == window.name){
+        document.getElementById("funds").innerText = (verificationMap.get(window.name).funds).toFixed(2) ;
+    }
 
     setTimeout(() => {
 
@@ -613,8 +619,9 @@ function minedBlockSucess(miningData, hash, nonce){
             // console.log("Request complete! response:", res);
           });
 
-        removeTransaction(miningData);  //do I wanna do that ???? I think so...
+         //do I wanna do that ???? I think so...
 
+        removeTransaction(miningData); 
         scrollToEndOfBC();
 
     }, "10")
