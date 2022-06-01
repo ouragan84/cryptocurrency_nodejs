@@ -39,7 +39,7 @@ function generateRandomBigInt(lowBigInt, highBigInt) {
   
     return lowBigInt + randomDifference;
 }
-  
+
 function getLowLevelPrime(bits){
     // '''Generate a prime candidate divisible  by first primes'''
     while (true){
@@ -87,14 +87,22 @@ function isMillerRabinPassed(mrc){
     return true
 }
     
-// returns 
-function getPrime(bits){
-    while(true){
-        let prime_candidate = getLowLevelPrime( BigInt(bits) )
+const timewait = "10";
 
-        if (isMillerRabinPassed(prime_candidate))
-            return prime_candidate;
+// returns 
+function getPrime(bits, id, then){
+    let prime_candidate = getLowLevelPrime( BigInt(bits) )
+
+    document.getElementById(id).value = prime_candidate.toString(16);
+
+    if (isMillerRabinPassed(prime_candidate)){
+      then(prime_candidate);
+      return;
     }
+
+    setTimeout(() => {
+        return getPrime(bits, id, then);
+    }, timewait)
 }
 
 // returns bitlength of bigint
@@ -192,14 +200,7 @@ function modInv (a, b) {
 }
 
 // generates a pk/sk pair in the form {private: {d, n}, public: {e, n}}
-function getKeyPair( primeBits = 512){
-    // get 2 large prime numbers
-    const p = getPrime(primeBits);
-    document.getElementById("p").value = p.toString(16);
-
-    const q = getPrime(primeBits);
-    document.getElementById("q").value = q.toString(16);
-    
+async function getKeyPair(p, q){
     // n's only prime decomposition is p*q
     const n = p * q;
     document.getElementById("n").value = n.toString(16);
@@ -238,8 +239,15 @@ function hide() {
 
 hide();
 
-window.addEventListener('load', function () {
-    getKeyPair();
+const primeBits = 512;
 
-    show();
+window.addEventListener('load', function () {
+
+    getPrime(primeBits, "p", (p) => {
+      getPrime(primeBits, "q", (q) => {
+        getKeyPair(p,q);
+        show();
+      });
+    });
+    
 })

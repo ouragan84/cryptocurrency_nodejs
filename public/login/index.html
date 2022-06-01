@@ -5,25 +5,46 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/login/style">
-    <title>Login</title>
+    <link rel="icon" href="/img/coin">
+    <title>Chungus Coin</title>
 </head>
 <body>
-    <h1>Login</h1>
-    <% if (messages.error) { %>
-        <%= messages.error %>
-      <% } %>
-    <form action="/login" method="POST">
-        <div>
-            <label for="name">Name:</label>
-            <input type="text" name="name" id="name" maxlength="64" required>
+    <div class="banner">
+        
+        <img class="logo" src="/img/coin">
+
+        <div class="pagetitle">
+            <h1 class="title">CHUNGUS COIN</h1>
+            <h2 class="title">A blockchain simulator</h2>
         </div>
-        <div>
-            <label for="password">Password:</label>
-            <input type="password" name="password" id="password" maxlength="64" required>
-        </div>
-        <button type="submit">Login</button>
-    </form>
-    <a href="/register">Register</a>
+
+        <a href="https://github.com/ouragan84/cryptocurrency_nodejs" class="gitlogo" target="_blank">
+            <img src="/img/github_logo" style="height: 100%">
+        </a>
+    </div>
+
+    <div class="form_container">
+        <h1 class="title">Login</h1>
+
+        <p class="error">
+            <% if (messages.error) { %>
+                <%= messages.error %>
+            <% } %>
+        </p>
+
+        <form action="/login" method="POST" class="form">
+            <div class="form_property">
+                <label for="name" class="property_title">Name:</label>
+                <input type="text" class="property_field" name="name" id="name" maxlength="64" required>
+            </div>
+            <div class="form_property">
+                <label for="password" class="property_title">Password:</label>
+                <input type="password" class="property_field" name="password" id="password" maxlength="64" required>
+            </div>
+            <button type="submit" class="submit_button">Login</button>
+        </form>
+        <a href="/register" class="redirect_link">Register</a>
+    </div>
 
     <script src="/login/script"></script>
 </body>

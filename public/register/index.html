@@ -5,27 +5,47 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/register/style">
-    <title>Register</title>
+    <link rel="icon" href="/img/coin">
+    <title>Chungus Coin</title>
 </head>
 <body>
-    <script src="/register/script"></script>
+    <div class="banner">
+        
+      <img class="logo" src="/img/coin">
 
-    <h1>Register</h1>
-    <% if (messages.error) { %>
-      <%= messages.error %>
-    <% } %>
-    <form action="/register" method="POST">
-        <div>
-          <label for="name">Name</label>
-          <input type="text" id="name" name="name" maxlength="64" required>
+      <div class="pagetitle">
+          <h1 class="title">CHUNGUS COIN</h1>
+          <h2 class="title">A blockchain simulator</h2>
+      </div>
+
+      <a href="https://github.com/ouragan84/cryptocurrency_nodejs" class="gitlogo" target="_blank">
+          <img src="/img/github_logo" style="height: 100%">
+      </a>
+  </div>
+
+  <div class="form_container">
+    <h1 class="title">Register</h1>
+
+    <p class="error">
+        <% if (messages.error) { %>
+            <%= messages.error %>
+        <% } %>
+    </p>
+
+    <form action="/register" method="POST" class="form">
+        <div class="form_property">
+            <label for="name" class="property_title">Name:</label>
+            <input type="text" class="property_field" name="name" id="name" maxlength="64" required>
         </div>
-        <div>
-          <label for="password">Password</label>
-          <input type="password" id="password" name="password" maxlength="64" required>
+        <div class="form_property">
+            <label for="password" class="property_title">Password:</label>
+            <input type="password" class="property_field" name="password" id="password" maxlength="64" required>
         </div>
-        <button type="submit" onclick="clickedResister()">Register</button>
-      </form>
-    <a href="/login">Login</a>
+        <button type="submit" class="submit_button">Register</button>
+    </form>
+    <a href="/login" class="redirect_link">Login</a>
+  </div>
     
+    <script src="/register/script"></script>
 </body>
 </html>

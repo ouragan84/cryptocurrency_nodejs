@@ -1,3 +1,102 @@
-body {
+html, body {
+    height: 100%;
+    margin: 0;
     background-color: beige;
+}
+
+.banner {
+    height:10%;
+    background-color: greenyellow;
+    display: flex;
+    justify-content: space-around;
+    flex-direction: row;
+    align-items: center;
+}
+
+.logo {
+    height: 90%;
+}
+
+.pagetitle{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    justify-items: center;
+
+    height: 60%;
+    width: fit-content;
+}
+
+h1.title{
+    height: 100%;
+    margin: 0%;
+    text-align: center;
+}
+
+h2.title{
+    height: 100%;
+    margin: 0%;
+    text-align: center;
+}
+
+.gitlogo {
+    height: 50%;
+}
+
+.form_container{
+    min-width: 250pt;
+    min-height: 250pt;
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    border: 2px solid rgb(60, 74, 83);
+    padding: 10px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    border-radius: 8px;
+    background-color: white;
+    flex-wrap: nowrap;
+}
+
+.title{
+    text-align: center;
+}
+
+.error{
+    color: red;
+    text-align: center;
+}
+
+.form{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    flex-wrap: nowrap;
+}
+
+.form_property{
+    margin: 5pt;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: flex-start;
+}
+
+.property_title{
+    margin-right: 5pt;
+}
+
+.property_field{
+    width: 100%;
+}
+
+.submit_button{
+    justify-self: center;
+    width: 50%;
+    margin-left: 25%;
+    margin-top: 20pt;
 }

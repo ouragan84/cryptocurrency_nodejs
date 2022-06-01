@@ -276,6 +276,9 @@ app.post('/keygen', checkAuthenticated, async (req, res) => {
     app.get('/img/checkmark', (req, res) => {
         res.sendFile(path.join(__dirname, '/public','/img','/checkmark.png'));
     }) 
+    app.get('/img/keygen', (req, res) => {
+        res.sendFile(path.join(__dirname, '/public','/img','/keygen.JPG'));
+    }) 
 }
 
 app.delete('/logout', (req, res) => {
@@ -316,10 +319,3 @@ io.on('connection', (socket) => {
         socket.broadcast.emit('invalid-transaction', data);
     })
 })
-
-/*
-socket.broadcast.emit('new-transaction', {
-            name: req.user.name,
-            key: req.user.keys.public
-        });
-        */

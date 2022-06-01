@@ -44,8 +44,6 @@ function startUp(){
 
     updateToBlockChain(longestBC, longestVerification);
 
-    
-
     updateSignature();
 }
 
@@ -81,7 +79,7 @@ socket.on('new-transaction', (data) => {
 // IMPLEMENT
 socket.on('invalid-transaction', (data) => {
 
-    console.log("got invalid");
+    // console.log("got invalid");
 
     let numNext = verificationMap.get(data.from).nextNum;
     let funds = verificationMap.get(data.from).funds;
@@ -121,8 +119,6 @@ function verifyAndUpdateBlockChain(bc){
     publicKeys.forEach((value, key, map) => {
         verification.set(key, {funds:200, nextNum:0})
     });
-
-    console.log("verification map: ", verification);
 
     for(let i = 0; i < bc.length; ++i){
         if(i > 0 && BigInt("0x"+bc[i].previous) != BigInt("0x"+ bc[i-1].hash)){
@@ -172,6 +168,8 @@ function updateToBlockChain(bc, verification){
 
     verificationMap = verification;
 
+    console.log("verification map: ", verificationMap);
+
     pendingTransaction.forEach(t => {
         if(t.number < verificationMap.get(t.from).nextNum){
             removeTransaction(t);
@@ -215,7 +213,7 @@ function addUser(user){
         }
     )
 
-    console.log(publicKeys)
+    // console.log(publicKeys)
 }
 
 function updateFormNumberAndInvalidateMyWrongNumberTransactions(){
@@ -612,7 +610,7 @@ function minedBlockSucess(miningData, hash, nonce){
             headers: {'Content-Type': 'application/json'}, 
             body: JSON.stringify(data)
           }).then(res => {
-            console.log("Request complete! response:", res);
+            // console.log("Request complete! response:", res);
           });
 
         removeTransaction(miningData);  //do I wanna do that ???? I think so...

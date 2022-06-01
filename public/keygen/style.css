@@ -1,7 +1,132 @@
-body {
-    background-color: rgb(152, 233, 229);
+html, body {
+    height: 100%;
+    margin: 0;
+    background-color: rgb(160, 160, 255);
 }
 
-input {
+.banner {
+    height:10%;
+    background-color: greenyellow;
+    display: flex;
+    justify-content: space-around;
+    flex-direction: row;
+    align-items: center;
+}
+
+.logo {
+    height: 90%;
+}
+
+.pagetitle{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    justify-items: center;
+
+    height: 60%;
+    width: fit-content;
+}
+
+h1.title{
+    height: 100%;
+    margin: 0%;
+    text-align: center;
+}
+
+h2.title{
+    height: 100%;
+    margin: 0%;
+    text-align: center;
+}
+
+.gitlogo {
+    height: 50%;
+}
+
+.page_content{
+    height: 90%;
+    width: 100%;
+
+    display: flex;
+    flex-flow: column nowrap;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+
+    flex-wrap: nowrap;
+}
+
+.form_container{
     width: 80%;
+    min-height: 300pt;
+
+    /* position: absolute; */
+    /* top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); */
+
+    border: 2px solid rgb(60, 74, 83);
+    padding: 10px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    border-radius: 8px;
+    background-color: white;
+    flex-wrap: nowrap;
+}
+
+.title{
+    text-align: center;
+}
+
+.greeting{
+    text-align: center;
+}
+
+.error{
+    color: red;
+    text-align: center;
+}
+
+.form{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    flex-wrap: nowrap;
+}
+
+.form_property{
+    margin: 10pt;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: flex-start;
+}
+
+.property_title{
+    margin-right: 10pt;
+    font-weight: bold;
+    font-style: italic;
+}
+
+.property_field{
+    width: 100%;
+}
+
+.submit_button{
+    justify-self: center;
+    width: 20%;
+    margin-left: 40%;
+    margin-top: 20pt;
+}
+
+.img_holder{
+    height: 20%;
+}
+
+.keygen_img{
+    height: 30%;
+    border-radius: 8px;
+    background-color: white;
+
 }

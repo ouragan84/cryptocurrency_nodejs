@@ -4,44 +4,72 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <link rel="icon" href="/img/coin">
+    <title>Chungus Coin</title>
     <link rel="stylesheet" href="/keygen/style">
 </head>
 <body>
-    <h1>Key Generation</h1>
-    <h3>Hi <%= name %>!</h3>
-    <% if (messages.error) { %>
-        <%= messages.error %>
-      <% } %>
-    <form action="/keygen" method="POST">
 
-        <div>
-            <label for="p">p:</label>
-            <input type="text" name="p" id="p" required readonly>
+    <div class="banner">
+        
+        <img class="logo" src="/img/coin">
+  
+        <div class="pagetitle">
+            <h1 class="title">CHUNGUS COIN</h1>
+            <h2 class="title">A blockchain simulator</h2>
         </div>
-        <div>
-            <label for="q">q:</label>
-            <input type="text" name="q" id="q" required readonly>
-        </div>
-        <div>
-            <label for="n">n:</label>
-            <input type="text" name="n" id="n" required readonly>
-        </div>
-        <div>
-            <label for="l">l:</label>
-            <input type="text" name="l" id="l" required readonly>
-        </div>
-        <div>
-            <label for="e">e:</label>
-            <input type="text" name="e" id="e" required readonly>
-        </div>
-        <div>
-            <label for="d">d:</label>
-            <input type="text" name="d" id="d" required readonly>
-        </div>
-        <button type="submit" id="submitButton">Continue</button>
+  
+        <a href="https://github.com/ouragan84/cryptocurrency_nodejs" class="gitlogo" target="_blank">
+            <img src="/img/github_logo" style="height: 100%">
+        </a>
+    </div>
 
-    </form>
+    <div class="page_content">
+        <div class="form_container"> 
+            <h1 class="title">Key Generation</h1>
+            <h3 class="greeting">Hi <%= name %>!</h3>
+    
+            <p class="error">
+                <% if (messages.error) { %>
+                    <%= messages.error %>
+                <% } %>
+            </p>
+    
+            <form action="/keygen" method="POST" class="form">
+    
+                <div class="form_property">
+                    <label for="p" class="property_title">p:</label>
+                    <input type="text" name="p" id="p" class="property_field" required readonly>
+                </div>
+                <div class="form_property">
+                    <label for="q" class="property_title">q:</label>
+                    <input type="text" name="q" id="q" class="property_field" required readonly>
+                </div>
+                <div class="form_property">
+                    <label for="n" class="property_title" >n:</label>
+                    <input type="text" name="n" id="n" class="property_field" required readonly>
+                </div>
+                <div class="form_property">
+                    <label for="l" class="property_title">λ:</label>
+                    <input type="text" name="l" id="l" class="property_field" required readonly>
+                </div>
+                <div class="form_property">
+                    <label for="e" class="property_title">e:</label>
+                    <input type="text" name="e" id="e" class="property_field" required readonly>
+                </div>
+                <div class="form_property">
+                    <label for="d" class="property_title">d:</label>
+                    <input type="text" name="d" id="d" class="property_field" required readonly>
+                </div>
+                <button type="submit" id="submitButton" class="submit_button">Continue</button>
+    
+            </form>
+        </div>
+            <img class="keygen_img" src="/img/keygen">
+    </div>
+    
+
+
     <script src="/keygen/script"></script>
 </body>
 </html>
