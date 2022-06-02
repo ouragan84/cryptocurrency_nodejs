@@ -3,7 +3,6 @@ if(process.env.NODE_ENV !== 'production'){
 }
 
 const express = require('express')
-const client = require('./connection.js')
 const app = express()
 const bcrypt = require('bcrypt');
 const path = require('path');
@@ -321,8 +320,6 @@ function checkNotAuthenticated(req, res, next) {
 
 const port = process.env.PORT || 8090;
 const server = app.listen(port, () => console.log("listening on port " + port))
-
-client.connect();
 
 const io = require('socket.io')(server, {cors: {origin: '*'}})
 
