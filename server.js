@@ -12,12 +12,9 @@ const flash = require('express-flash');
 const session = require('express-session');
 const MemoryStore = require('memorystore')(session)
 const methodOverride = require('method-override')
-const storage = require('node-persist');
+// const storage = require('node-persist');
 const bodyParser = require('body-parser');
-
 const initializePassport = require('./passport-config');
-const { throws } = require('assert');
-const { error } = require('console');
 
 var users = [];
 var transactions = [];
@@ -42,6 +39,8 @@ app.use(passport.session())
 app.use(methodOverride('_method'))
 app.use(bodyParser.json());   
 
+
+// intitializeStroage();
 
 // async function intitializeStroage(){
 //     await storage.init({
@@ -75,7 +74,7 @@ app.use(bodyParser.json());
 //     users = await storage.getItem('users');
 //     // transactions = await storage.getItem('transactions');
 
-//     
+    
 // }
 
 initializePassport(
@@ -187,7 +186,7 @@ app.get('/transactions', checkAuthenticated, (req, res) => {
 })
 
 app.post('/blockchain', checkAuthenticated, async (req, res) => {
-    console.log("got something " + req.body + " thingy? " +  req.body.blockChain);
+    // console.log("got something " + req.body + " thingy? " +  req.body.blockChain);
     req.user.blockChain = req.body.blockChain;
     io.emit('update-blockchain', {blockChain: getLongestBlockChain()});
     // await storage.setItem("users", users);
