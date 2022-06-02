@@ -287,6 +287,12 @@ function removeTransaction(data){
     }
 }
 
+function moveTransactionToBack(data){
+    removeTransaction(data);
+    pendingTransaction.push(data);
+    addTransaction(data);
+}
+
 function addTransaction(data, i){
 
     document.getElementById('pendingList').innerHTML +=
@@ -477,7 +483,7 @@ function isTransactionNumberValid(data){
             document.getElementById("checkmark_image_num").style.visibility = 'visible'
             return true;
         }
-        invalidateTransaction(data, "Number is over the one we should expect, but keep transaction in case multiple are pending by the user", "checkmark_image_num", false);
+        invalidateTransaction(data, "Number is over the one we should expect, move transaction to the back in case it is useful in the future", "checkmark_image_num", false);
     }else{
         invalidateTransaction(data, "Number is already in block chain or user does not exist", "checkmark_image_num", true);
     }
@@ -486,7 +492,7 @@ function isTransactionNumberValid(data){
 
 function isTransactionSignatureValid(data){
     if( !verifyTransactionSignature(data) ){
-        invalidateTransaction(data, "Signature is not valid  (We don't want to waste time mining a block that we know is invalid)", "checkmark_image_sig");
+        invalidateTransaction(data, "Signature is not valid (We don't want to waste time mining a block that we know is invalid)", "checkmark_image_sig");
         return false;
     }
     document.getElementById("checkmark_image_sig").src = '/img/checkmark';
@@ -516,6 +522,8 @@ function invalidateTransaction(data, message, img_id, remove=true){
     if(remove){
         removeTransaction(data);
         socket.emit('invalid-transaction', data);
+    }else{
+        moveTransactionToBack(data);
     }
         
     updateFormNumberAndInvalidateMyWrongNumberTransactions();

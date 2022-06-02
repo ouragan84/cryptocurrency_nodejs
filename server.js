@@ -3,6 +3,7 @@ if(process.env.NODE_ENV !== 'production'){
 }
 
 const express = require('express')
+const client = require('./connection.js')
 const app = express()
 const bcrypt = require('bcrypt');
 const path = require('path');
@@ -12,7 +13,7 @@ const session = require('express-session');
 const MemoryStore = require('memorystore')(session)
 const methodOverride = require('method-override')
 const storage = require('node-persist');
-var bodyParser = require('body-parser');
+const bodyParser = require('body-parser');
 
 const initializePassport = require('./passport-config');
 const { throws } = require('assert');
@@ -20,7 +21,7 @@ const { error } = require('console');
 
 var users = [];
 var transactions = [];
-intitializeStroage();
+// intitializeStroage();
 
 app.engine('html', require('ejs').renderFile);
 app.set('view engine', 'html');
@@ -42,44 +43,46 @@ app.use(methodOverride('_method'))
 app.use(bodyParser.json());   
 
 
-async function intitializeStroage(){
-    await storage.init({
-        dir: 'persist',
+// async function intitializeStroage(){
+//     await storage.init({
+//         dir: 'persist',
      
-        stringify: JSON.stringify,
+//         stringify: JSON.stringify,
      
-        parse: JSON.parse,
+//         parse: JSON.parse,
      
-        encoding: 'utf8',
+//         encoding: 'utf8',
      
-        logging: false,  // can also be custom logging function
+//         logging: false,  // can also be custom logging function
      
-        ttl: false, // ttl* [NEW], can be true for 24h default or a number in MILLISECONDS or a valid Javascript Date object
+//         ttl: false, // ttl* [NEW], can be true for 24h default or a number in MILLISECONDS or a valid Javascript Date object
      
-        expiredInterval: 2 * 60 * 1000, // every 2 minutes the process will clean-up the expired cache
+//         expiredInterval: 2 * 60 * 1000, // every 2 minutes the process will clean-up the expired cache
      
-        // in some cases, you (or some other service) might add non-valid storage files to your
-        // storage dir, i.e. Google Drive, make this true if you'd like to ignore these files and not throw an error
-        forgiveParseErrors: false
+//         // in some cases, you (or some other service) might add non-valid storage files to your
+//         // storage dir, i.e. Google Drive, make this true if you'd like to ignore these files and not throw an error
+//         forgiveParseErrors: false
      
-    });
+//     });
 
-    if(await storage.getItem('users') == null){
-        await storage.setItem('users',[]);
-    }
-    // if(await storage.getItem('transactions') == null){
-    //     await storage.setItem('transactions',[]);
-    // }
+//     if(await storage.getItem('users') == null){
+//         await storage.setItem('users',[]);
+//     }
+//     // if(await storage.getItem('transactions') == null){
+//     //     await storage.setItem('transactions',[]);
+//     // }
 
-    users = await storage.getItem('users');
-    // transactions = await storage.getItem('transactions');
+//     users = await storage.getItem('users');
+//     // transactions = await storage.getItem('transactions');
 
-    initializePassport(
-        passport, 
-        name => users.find(user => user.name === name),
-        id => users.find(user => user.id === id)
-    )
-}
+//     
+// }
+
+initializePassport(
+            passport, 
+            name => users.find(user => user.name === name),
+            id => users.find(user => user.id === id)
+        )
 
 app.get('/', checkAuthenticated, (req, res) => {
     res.redirect('/dashboard');
@@ -133,7 +136,7 @@ app.post('/register', checkNotAuthenticated, async (req, res) => {
         };
 
         users.push(user);
-        await storage.setItem("users", users);
+        // await storage.setItem("users", users);
 
         req.login(user, function(err) {
             if (err) {
@@ -187,7 +190,7 @@ app.post('/blockchain', checkAuthenticated, async (req, res) => {
     console.log("got something " + req.body + " thingy? " +  req.body.blockChain);
     req.user.blockChain = req.body.blockChain;
     io.emit('update-blockchain', {blockChain: getLongestBlockChain()});
-    await storage.setItem("users", users);
+    // await storage.setItem("users", users);
 });
 
 function getLongestBlockChain(){
@@ -223,12 +226,12 @@ app.post('/keygen', checkAuthenticated, async (req, res) => {
             n:req.body.n
         }
     }
-    
+
     io.emit('new-user', {
         name: req.user.name,
         key: req.user.keys.public
     });
-    await storage.setItem("users", users);
+    // await storage.setItem("users", users);
 
     return res.redirect('/dashboard');
 })
@@ -319,6 +322,9 @@ function checkNotAuthenticated(req, res, next) {
 
 const port = process.env.PORT || 8090;
 const server = app.listen(port, () => console.log("listening on port " + port))
+
+client.connect();
+
 const io = require('socket.io')(server, {cors: {origin: '*'}})
 
 io.on('connection', (socket) => {
