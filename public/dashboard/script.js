@@ -84,7 +84,7 @@ socket.on('invalid-transaction', (data) => {
     let numNext = verificationMap.get(data.from).nextNum;
     let funds = verificationMap.get(data.from).funds;
 
-    if(parseInt(data.number) < numNext || parseFloat(data.amount) > funds){
+    if(verifyTransactionFund(data) && (parseInt(data.number) - verificationMap.get(data.from).nextNum) < 0 && verifyTransactionSignature(data)){
 
         console.log("a transaction has been deemed invalid by someone else")
         removeTransaction(data);
@@ -98,6 +98,8 @@ socket.on('invalid-transaction', (data) => {
 })
 
 socket.on('update-blockchain', (data) => {
+
+    // console.log("recieved other blockchain")
     
     if(data.blockChain.length > blockChain.length){
         const v = verifyAndUpdateBlockChain(data.blockChain);
@@ -130,6 +132,11 @@ function verifyAndUpdateBlockChain(bc){
             // console.log("prev != prev hash so hell nah")
             return {isValid: false, verification:null}; // hash not the same, hell nah
         }
+
+        if(!verifyTransactionSignature(bc[i])){
+            // console.log("prev != prev hash so hell nah")
+            return {isValid: false, verification:null}; // hash not the same, hell nah
+        }
             
         if(verification.get(bc[i].from) == null){
             // console.log("user " +  bc[i].from + " don't exist, bad blockchain")
@@ -142,9 +149,13 @@ function verifyAndUpdateBlockChain(bc){
         }else
             verification.get(bc[i].from).nextNum ++;
 
+        if(parseFloat(bc[i].amount) < 0){
+            return {isValid: false, verification:null};
+        }
+
         verification.get(bc[i].to).funds += parseFloat(bc[i].amount);
 
-        if(parseInt(bc[i].amount) > verification.get(bc[i].from).funds){
+        if(parseFloat(bc[i].amount) > verification.get(bc[i].from).funds){
             // console.log("overdrawn = bad blockchain")
             return {isValid: false, verification:null}; //overdrawn = bad blockchain
         }else
@@ -268,7 +279,7 @@ function deleteTransactionsWithNumUnder(user, num){
 }
 
 function removeTransaction(data){
-    console.log("called to remove transaction")
+    // console.log("called to remove transaction")
 
     for(let j = 0; j < pendingTransaction.length; j++){
         if(data.from == pendingTransaction[j].from
@@ -471,7 +482,7 @@ function isTransactionFundValid(data){
 
 function verifyTransactionFund(data){
     if( !publicKeys.has(data.from)) return false;
-
+    if( parseFloat(data.amount) < 0) return false;
     return verificationMap.get(data.from).funds >= parseFloat(data.amount);
 }
 
