@@ -133,6 +133,11 @@ function verifyAndUpdateBlockChain(bc){
             return {isValid: false, verification:null}; // hash not the same, hell nah
         }
 
+        if(BigInt("0x"+bc[i].hash) < 2n ** (shaBits - zeroBits)){
+            // console.log("prev != prev hash so hell nah")
+            return {isValid: false, verification:null}; // hash not the same, hell nah
+        }
+
         if(!verifyTransactionSignature(bc[i])){
             // console.log("prev != prev hash so hell nah")
             return {isValid: false, verification:null}; // hash not the same, hell nah
