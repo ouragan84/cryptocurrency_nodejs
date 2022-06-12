@@ -6,6 +6,9 @@ let publicKeys = new Map();
 let isMining = false;
 let verificationMap = new Map();
 
+const zeroBits = 12n;
+const shaBits = 160n;
+
 startUp();
 
 //ADD GET BC
@@ -545,8 +548,6 @@ function invalidateTransaction(data, message, img_id, remove=true){
     updateFormNumberAndInvalidateMyWrongNumberTransactions();
 }
 
-const zeroBits = 12n;
-const shaBits = 160n;
 const incrementRender = 123;
 const nonceL = 64n;
 const timewait = "10";
